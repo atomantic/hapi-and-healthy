@@ -1,6 +1,6 @@
 # \\[._.]/ - Hapi and Healthly API
 
-![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
+[![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
 ![Dependencies](https://david-dm.org/atomantic/hapi-and-healthy.png)
 
 ## NOTE:
