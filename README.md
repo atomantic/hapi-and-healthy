@@ -1,6 +1,5 @@
 # \\[._.]/ - Hapi and Healthly API
 
-![Build Status](https://travis-ci.org/atomantic/hapi-and-healthy.png?branch=master)](https://travis-ci.org/atomantic/hapi-and-healthy)
 ![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
 ![Dependencies](https://david-dm.org/atomantic/hapi-and-healthy.png)
 
