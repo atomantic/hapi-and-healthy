@@ -4,7 +4,8 @@
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
-    "start": "gulp"
+    "start": "gulp",
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -30,9 +31,12 @@
   "devDependencies": {
     "gulp": "^3.8.7",
     "gulp-jshint": "^1.8.4",
+    "gulp-lab": "^1.0.0",
     "gulp-supervisor": "^0.1.2",
     "gulp-webserver": "^0.7.0",
     "hapi": "^6.7.1",
+    "joi": "^4.6.2",
+    "lab": "^4.3.0",
     "opn": "^1.0.0"
   },
   "dependencies": {

@@ -5,6 +5,7 @@
 var gulp        = require('gulp'),
     jshint      = require('gulp-jshint'),
     supervisor  = require('gulp-supervisor'),
+    lab         = require('gulp-lab'),
     opn         = require('opn');
 
 var server = {
@@ -18,6 +19,18 @@ gulp.task('js', function() {
   return gulp.src(files)
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter('default'));
+});
+
+gulp.task('test', function () {
+    return gulp.src('test/*.js')
+      // use lab tests
+      // -v verbose
+      // -l disable global leak detection
+      // -C code coverage
+      // -m 0 Timeout zero
+      .pipe(lab('-v -l -C -m 0'))
+      .pipe(jshint())
+      .pipe(jshint.reporter('default'));
 });
 
 gulp.task( "supervise", function() {
