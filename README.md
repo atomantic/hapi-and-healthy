@@ -1,7 +1,17 @@
 # \\[._.]/ - Hapi and Healthly API
 
+[![Build Status](https://travis-ci.org/atomantic/hapi-and-healthy.png?branch=master)](https://travis-ci.org/atomantic/hapi-and-healthy)
 [![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
 ![Dependencies](https://david-dm.org/atomantic/hapi-and-healthy.png)
+
+This Hapi.js plugin provides configurable routes for /health API reporting, specifically with the goal of providing valuable endpoints for different consumers. 
+
+The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the ltm.test array, which will run and report status for the LTM API.
+
+Another API endpoint is provided for machine readable status of the node health, reporting cpu and memory load for the system and for the hapi server process itself.
+
+Lastly, there's a human friendly version of the machine endpoint, which converts values from bytes to KB/MB/GB and usage to percentage of the system rather than flat values.
+
 
 ## NOTE:
 This is an early version. I expect much more configuration and additions over the coming weeks. This is an effort to create a hapi plugin for a service-status API standard that is mostly finalized but still someone in progress.
@@ -43,13 +53,13 @@ server.pack.register({
       // should be pulled out of rotation
       test:[
         function(){
-          // TODO: test if this node can connect to memcached
+          // Example TODO: test if this node can connect to local memcached
           // if not, there's something wrong with the configuration
-          // and return false
+          // and this test should return false
           return true;
         },
         function(){
-          // TODO: check the commit hash/checksum of the deployed code
+          // Example TODO: check the commit hash/checksum of the deployed code
           // if it doesn't match the manifest, this node is not what we want
           // in the pool
           return false;
