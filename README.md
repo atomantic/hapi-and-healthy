@@ -20,6 +20,15 @@ npm install;
 gulp;
 ```
 
+## Tests:
+```
+git clone git@github.com:atomantic/hapi-and-healthy.git
+cd hapi-and-healthy;
+npm install;
+npm test;
+```
+
+
 ## Usage:
 
 ```
