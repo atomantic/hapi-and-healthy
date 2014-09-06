@@ -1,5 +1,6 @@
-var Lab = require('lab'),
-    Hapi = require('hapi');
+var Lab = require('lab');
+var Hapi = require('hapi');
+var Joi = require('joi');
 
 // test shortcuts
 var lab = exports.lab = Lab.script();
@@ -13,6 +14,25 @@ var expect = Lab.expect;
 describe('Hapi-and-Healthy plugin', function() {
 
     var server = new Hapi.Server();
+
+    var schemaFull = Joi.object().keys({
+        cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+        cpu_proc: Joi.number().min(0).max(100).required(),
+        mem_free: Joi.number().integer().required(),
+        mem_free_percent: Joi.number().min(0).max(1).required(),
+        mem_proc: Joi.number().min(0).max(1).required(),
+        mem_total: Joi.number().integer().required(),
+        os_uptime: Joi.number().integer().required()
+    });
+    var schemaHuman = Joi.object().keys({
+        cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+        cpu_proc: Joi.string().required(),
+        mem_free: Joi.string().required(),
+        mem_free_percent: Joi.string().required(),
+        mem_proc: Joi.string().required(),
+        mem_total: Joi.string().required(),
+        os_uptime: Joi.string().required()
+    });
 
     it('should load plugin succesfully', function(done){
         server.pack.register({
@@ -64,20 +84,39 @@ describe('Hapi-and-Healthy plugin', function() {
     });
 
 
-    it('should respond with 200 and stats at full endpoint',function(done){
+    it('should respond with 200 code and expected schema at full endpoint',function(done){
         server.inject({
             method: "GET",
             url: "/service-status/full"
         }, function(response) {
-            console.log(response.result);
 
             var health = response.result.health;
             expect(response.statusCode).to.equal(200);
-            expect(health.cpu_load).to.be.ok;
 
-            // TODO: use Joi to validate payload schema
-     
-            done();
+            Joi.validate(health, schemaFull, function (err, value) {
+                expect(err).to.equal(null);
+                //console.log(value);
+                done();
+            });
+
+        });
+    });
+
+
+    it('should respond with 200 code and expected schema at human endpoint',function(done){
+        server.inject({
+            method: "GET",
+            url: "/service-status/human"
+        }, function(response) {
+
+            var health = response.result.health;
+            expect(response.statusCode).to.equal(200);
+
+            Joi.validate(health, schemaHuman, function (err, value) {
+                expect(err).to.equal(null);
+                done();
+            });
+
         });
     });
 
