@@ -1,8 +1,14 @@
 # \\[._.]/ - Hapi and Healthly API
 
-[![Build Status](https://travis-ci.org/atomantic/hapi-and-healthy.png?branch=master)](https://travis-ci.org/atomantic/hapi-and-healthy)
-[![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
-![Dependencies](https://david-dm.org/atomantic/hapi-and-healthy.png)
+
+
+[![](http://img.shields.io/gratipay/antic.svg?style=flat)](https://gratipay.com/antic)
+[![](http://img.shields.io/npm/dm/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
+[![](http://img.shields.io/npm/v/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
+[![](http://img.shields.io/codeclimate/github/atomantic/hapi-and-healthy.svg?style=flat)](https://codeclimate.com/github/atomantic/hapi-and-healthy)
+[![](http://img.shields.io/codeclimate/coverage/github/atomantic/hapi-and-healthy.svg?style=flat)](https://codeclimate.com/github/atomantic/hapi-and-healthy)
+[![](http://img.shields.io/travis/atomantic/hapi-and-healthy.svg?style=flat)](https://travis-ci.org/atomantic/hapi-and-healthy)
+[![](http://img.shields.io/david/atomantic/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 
 This Hapi.js plugin provides configurable routes for /health API reporting, specifically with the goal of providing valuable endpoints for different consumers.
 
