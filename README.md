@@ -4,9 +4,9 @@
 [![NPM version](https://badge.fury.io/js/hapi-and-healthy.png)](http://badge.fury.io/js/hapi-and-healthy)
 ![Dependencies](https://david-dm.org/atomantic/hapi-and-healthy.png)
 
-This Hapi.js plugin provides configurable routes for /health API reporting, specifically with the goal of providing valuable endpoints for different consumers. 
+This Hapi.js plugin provides configurable routes for /health API reporting, specifically with the goal of providing valuable endpoints for different consumers.
 
-The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the ltm.test array, which will run and report status for the LTM API.
+The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the ltm.test array, which will run and report status for the LTM API. Keep in mind that an LTM will hit this API about ~1/sec so the test functions should run really fast :)
 
 Another API endpoint is provided for machine readable status of the node health, reporting cpu and memory load for the system and for the hapi server process itself.
 
@@ -47,6 +47,7 @@ var server = hapi.createServer();
 server.pack.register({
   plugin: require("hapi-and-healthy"),
   options: {
+    auth: 'status_auth_strategy',
     ltm:{
       // a series of tests that will tell if this node
       // is configured badly or has some other reason it
@@ -125,6 +126,9 @@ runs full, verbose suite of health checks and returns human friendly output
 
 ### `/health/ltm`
 returns simple health check for LTM (Local Traffic Manager) monitoring.
+
+This route will enforce auth:false since the LTM needs to hit this so frequently and it does
+not expose sensitive data
 
 If the node fails any of the test functions supplied in `options.ltm.test`
 ```

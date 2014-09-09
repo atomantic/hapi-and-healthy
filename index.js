@@ -29,7 +29,7 @@ exports.register = function (plugin, options, next) {
                 bad: "BAD",
                 warn: "WARN"
             }
-        }, options||{} );
+        }, options );
 
     var getHealth = function(cb){
         usage.lookup(process.pid, function(err, usage) {
@@ -54,6 +54,9 @@ exports.register = function (plugin, options, next) {
         plugin.route({
             method: 'GET',
             path: opt.path.main,
+            config: {
+                auth: opt.auth||false
+            },
             handler: function(request, reply) {
                 getHealth(reply);
             }
@@ -63,6 +66,9 @@ exports.register = function (plugin, options, next) {
         plugin.route({
             method: 'GET',
             path: opt.path.human,
+            config: {
+                auth: opt.auth||false
+            },
             handler: function(request, reply) {
                 getHealth(function(data){
 
@@ -90,6 +96,7 @@ exports.register = function (plugin, options, next) {
             method: 'GET',
             path: opt.path.ltm,
             config:{
+                auth:false,
                 tags:['api','health','status'],
                 description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
                 notes: "if an LTM monitor sees that a node's LTM health API returns a 500 code, the node should be immediately pulled from rotation."
