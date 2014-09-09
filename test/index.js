@@ -17,7 +17,7 @@ describe('Hapi-and-Healthy plugin', function() {
 
     var schemaFull = Joi.object().keys({
         cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
-        cpu_proc: Joi.number().min(0).max(100).required(),
+        cpu_proc: Joi.number().min(0).max(101).required(),
         mem_free: Joi.number().integer().required(),
         mem_free_percent: Joi.number().min(0).max(1).required(),
         mem_proc: Joi.number().min(0).max(1).required(),
@@ -58,15 +58,15 @@ describe('Hapi-and-Healthy plugin', function() {
             done();
         });
     });
- 
+
     it('should register arbitrary routes', function(done) {
         var table = server.table();
- 
+
         expect(table).to.have.length(3);
         expect(table[0].path).to.equal('/service-status');
         expect(table[1].path).to.equal('/service-status/full');
         expect(table[2].path).to.equal('/service-status/human');
- 
+
         done();
     });
 
@@ -75,10 +75,10 @@ describe('Hapi-and-Healthy plugin', function() {
             method: "GET",
             url: "/service-status"
         }, function(response) {
-     
+
             expect(response.statusCode).to.equal(200);
             expect(response.result).to.equal('HEALTHY');
-     
+
             done();
         });
     });
