@@ -58,14 +58,15 @@ describe('Hapi-and-Healthy plugin', function() {
             done();
         });
     });
-
+ 
     it('should register arbitrary routes', function(done) {
         var table = server.table();
 
-        expect(table).to.have.length(3);
+        expect(table).to.have.length(4);
         expect(table[0].path).to.equal('/service-status');
         expect(table[1].path).to.equal('/service-status/full');
         expect(table[2].path).to.equal('/service-status/human');
+        expect(table[3].path).to.equal('/service-status');
 
         done();
     });
@@ -78,6 +79,19 @@ describe('Hapi-and-Healthy plugin', function() {
 
             expect(response.statusCode).to.equal(200);
             expect(response.result).to.equal('HEALTHY');
+
+            done();
+        });
+    });
+
+
+    it('should respond with 200 code with HEAD request',function(done){
+        server.inject({
+            method: "HEAD",
+            url: "/service-status"
+        }, function(response) {
+
+            expect(response.statusCode).to.equal(200);
 
             done();
         });
