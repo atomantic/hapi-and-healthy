@@ -136,12 +136,11 @@ exports.register = function (plugin, options, next) {
                 // and should immediately be removed from rotation
                 _.each(opt.ltm.test, function(fn){
                     if(!fn()){
-                        reply().code(500);
+                        reply().code(500).header('connection','close');
                     }
                 });
                 // tests pass then we are peachy:
-                reply().code(200);
-                reply.close();
+                reply().header('connection','close');
             }
         });
 
