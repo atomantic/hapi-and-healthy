@@ -30,7 +30,7 @@ server.pack.register({
                         return true;
                     },
                     function(){
-                        return false;
+                        return true;
                     }
                 ]
             }

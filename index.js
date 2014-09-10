@@ -110,7 +110,17 @@ exports.register = function (plugin, options, next) {
                 description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
                 notes: "Returns a web service's current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately."
             },
-            handler: handleLTM
+            handler: function(request,reply){
+                // if any one of our LTM tests fail, this node is bad
+                // and should immediately be removed from rotation
+                _.each(opt.ltm.test, function(fn){
+                    if(!fn()){
+                        reply(opt.state.bad).code(500).type('text/plain');
+                    }
+                });
+                // tests pass then we are peachy:
+                reply(opt.state.good).type('text/plain');
+            }
         });
         plugin.route({
             method: 'HEAD',
@@ -121,7 +131,17 @@ exports.register = function (plugin, options, next) {
                 description: "Simple HEAD check API to determine if the node is bad. Responds only with 200 or 500 HTTP response code.",
                 notes: "Retrieve a web service's health status simply via HTTP response code."
             },
-            handler: handleLTM
+            handler: function(request,reply){
+                // if any one of our LTM tests fail, this node is bad
+                // and should immediately be removed from rotation
+                _.each(opt.ltm.test, function(fn){
+                    if(!fn()){
+                        reply().code(500).header('connection','close');
+                    }
+                });
+                // tests pass then we are peachy:
+                reply().header('connection','close');
+            }
         });
 
     });
