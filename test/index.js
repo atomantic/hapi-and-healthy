@@ -39,7 +39,11 @@ describe('Hapi-and-Healthy plugin', function() {
             plugin: require('../'),
             options: {
                 ltm:{
-                    test:[]
+                    test:[function(){
+                        return true;
+                    },function(){
+                        return false;
+                    }]
                 },
                 path:{
                     ltm: '/service-status',
@@ -71,14 +75,14 @@ describe('Hapi-and-Healthy plugin', function() {
         done();
     });
 
-    it('should respond with 200 code and arbitrary text at LTM monitor endpoint',function(done){
+    it('should respond with 500 code and arbitrary text at LTM monitor endpoint',function(done){
         server.inject({
             method: "GET",
             url: "/service-status"
         }, function(response) {
 
-            expect(response.statusCode).to.equal(200);
-            expect(response.result).to.equal('HEALTHY');
+            expect(response.statusCode).to.equal(500);
+            expect(response.result).to.equal('FATAL');
 
             done();
         });
@@ -91,7 +95,7 @@ describe('Hapi-and-Healthy plugin', function() {
             url: "/service-status"
         }, function(response) {
 
-            expect(response.statusCode).to.equal(200);
+            expect(response.statusCode).to.equal(500);
 
             done();
         });
