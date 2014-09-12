@@ -1,6 +1,6 @@
 {
   "name": "hapi-and-healthy",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
