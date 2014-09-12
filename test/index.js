@@ -22,7 +22,7 @@ describe('Hapi-and-Healthy plugin', function() {
         mem_free_percent: Joi.number().min(0).max(1).required(),
         mem_proc: Joi.number().min(0).max(1).required(),
         mem_total: Joi.number().integer().required(),
-        os_uptime: Joi.number().integer().required()
+        os_uptime: Joi.number().required()
     });
     var schemaHuman = Joi.object().keys({
         cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
