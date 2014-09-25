@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "async": "0.x.x",
+    "git-rev": "0.x.x",
     "humanize-duration": "2.x.x",
     "lodash": "2.x.x",
     "pretty-bytes": "1.x.x",

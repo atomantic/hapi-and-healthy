@@ -16,12 +16,13 @@ var humanize = require("humanize-duration");
 // https://www.npmjs.org/package/pretty-bytes
 var prettyBytes = require("pretty-bytes");
 var async = require('async');
+var git = require('git-rev');
 
 exports.register = function (plugin, options, next) {
 
     // configuration options
     var opt = _.merge({
-            id: '',
+            id: 'git',
             lang: 'en',
             test:{
                 ltm:[function(cb){cb(false,'all good');}]
@@ -56,9 +57,9 @@ exports.register = function (plugin, options, next) {
                 json = {
                   service: {
                     status: {
-                      state: opt.state.good,
                       message: '',
-                      published: _.isotime()
+                      published: _.isotime(),
+                      state: opt.state.good
                     }
                   }
                 };
@@ -93,14 +94,21 @@ exports.register = function (plugin, options, next) {
                     }
                     json = _.merge(json, {
                         service: {
+                            custom: data,
                             id: opt.id,
                             name: opt.name,
-                            version: opt.version,
-                            custom: data
+                            version: opt.version
                         }
                     });
-
-                    return reply(json);
+                    if(json.service.id==='git'){
+                        // set it to the git commit hash
+                        git.long(function(str){
+                            json.service.id = str;
+                            return reply(json);
+                        });
+                    }else{
+                        return reply(json);
+                    }
                 });
             });
         };
