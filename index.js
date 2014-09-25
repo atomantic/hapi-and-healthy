@@ -15,7 +15,9 @@ var usage = require('usage');
 var humanize = require("humanize-duration");
 // https://www.npmjs.org/package/pretty-bytes
 var prettyBytes = require("pretty-bytes");
+// https://www.npmjs.org/package/async
 var async = require('async');
+// https://www.npmjs.org/package/git-rev
 var git = require('git-rev');
 
 exports.register = function (plugin, options, next) {
@@ -53,30 +55,46 @@ exports.register = function (plugin, options, next) {
             });
         },
         buildStatus = function(request, reply){
-            var plain = request.headers.accept==='text/plain',
+            var etag,
+                type = 'text/plain', // default response type
+                plain = request.headers.accept===type, // wants text/plain
+                match = request.headers['if-none-match'],
                 json = {
                   service: {
                     status: {
-                      message: '',
-                      published: _.isotime(),
-                      state: opt.state.good
                     }
                   }
                 };
-
-            // if any one of our LTM tests fail, this node is bad
+            // if any one of our node tests fail, this node is bad
             // and should immediately be removed from rotation
-            // run ltm tests async in parallel
+            // run tests in parallel async
             async.parallel(opt.test.node, function(err, data){
-                json.service.status.message = data;
-                json.service.status.state = err ? opt.state.bad : opt.state.good;
+                // if any of the tests return an err, it will show up here immediately
+                var state = err ? opt.state.bad : opt.state.good;
+                // we are only going to return 200/500
                 var code = err ? 500 : 200;
-                var type = plain ? 'text/plain' : 'application/json';
-                var body = plain ? json.service.status.state : json;
+                var body = state;
+                if(!plain){
+                    json.service.status.message = data;
+                    json.service.status.state = state;
+                    type = 'application/json';
+                    body = json;
+                    etag = _.base64_encode(body);
+                    // now add published date
+                    body.service.status.published = _.isotime();
+                }else{
+                    etag = _.base64_encode(body);
+                }
+
+                // support for If-None-Match: {etag}
+                if(match && match===etag){
+                    return reply().code(304);
+                }
 
                 if(_.isUndefined(request.query.v)){
-                    return reply(body).code(code).type(type).header('connection','close');
+                    return reply(body).code(code).type(type).etag(etag);
                 }
+                // we want more info
                 getHealth(request, function(data){
                     if(!_.isUndefined(request.query.h)){
                         // make it human friendly
@@ -104,10 +122,10 @@ exports.register = function (plugin, options, next) {
                         // set it to the git commit hash
                         git.long(function(str){
                             json.service.id = str;
-                            return reply(json);
+                            return reply(json).etag(etag);
                         });
                     }else{
-                        return reply(json);
+                        return reply(json).etag(etag);
                     }
                 });
             });
@@ -121,6 +139,10 @@ exports.register = function (plugin, options, next) {
             path: opt.path,
             config:{
                 auth:false,
+                // cache:{
+                //     expiresIn: 86400000,
+                //     privacy: 'public'
+                // },
                 tags:['api','health','status'],
                 description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
                 notes: "Returns a web service's current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately."

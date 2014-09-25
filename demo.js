@@ -21,19 +21,23 @@ server.pack.register({
         // but I'm dogfooding here:
         plugin: require('./index'),
         options: {
-            ltm:{
+            name: pjson.name,
+            test:{
                 // a series of tests that will tell if this node
                 // is configured badly or has some other reason it
                 // should be pulled out of rotation
-                test:[
-                    function(){
-                        return true;
+                node:[
+                    function(cb){
+                        // todo: test memcached
+                        return cb(false,'memcached is running');
                     },
-                    function(){
-                        return true;
+                    function(cb){
+                        // todo: test checksum
+                        return cb(false,'code checksum matches manifest');
                     }
                 ]
-            }
+            },
+            version: pjson.version
         }
     },
     function(err, a){
