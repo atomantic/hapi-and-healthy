@@ -1,7 +1,12 @@
 // http://lodash.com/
 var _ = require('lodash');
 // https://github.com/atomantic/undermore
-//mixin(require('undermore'));
+mixin(require('undermore'));
+_.mixin({
+    isotime:function(){
+        return (new Date()).toISOString();
+    }
+});
 // http://nodejs.org/api/os.html
 var os = require('os');
 // https://www.npmjs.org/package/usage
@@ -16,10 +21,10 @@ exports.register = function (plugin, options, next) {
 
     // configuration options
     var opt = _.merge({
-            id: ''
+            id: '',
             lang: 'en',
             test:{
-                ltm:[]
+                ltm:[function(cb){cb(false,'all good');}]
             },
             name: 'my_service',
             path: '/health',
@@ -46,58 +51,59 @@ exports.register = function (plugin, options, next) {
                });
             });
         },
-        replyStatus = function(request, reply, data){
-            if(request.headers.accept==='text/plain'){
-                reply(data).type('text/plain').header('connection','close');
-            }else{
-                // json
-            }
-        },
         buildStatus = function(request, reply){
-            var output = {
+            var plain = request.headers.accept==='text/plain',
+                json = {
                   service: {
-                    id: opt.id,
-                    name: opt.name,
-                    version: opt.version,
-                    custom: {},
                     status: {
-                      state: "GOOD",
-                      message: "all clear",
-                      published: "2014-09-24T03:27:59.575Z"
+                      state: opt.state.good,
+                      message: '',
+                      published: _.isotime()
                     }
                   }
-                }
+                };
+
             // if any one of our LTM tests fail, this node is bad
             // and should immediately be removed from rotation
-            if(opt.test.ltm.length){
-                // run ltm tests async in parallel
-                async.parallel(opt.test.ltm, function(err, data){
-                    if(err){
-                        reply(opt.state.bad).code(500).type('text/plain').header('connection','close');
-                    }
-                });
-            }
-            if(request.query.v){
+            // run ltm tests async in parallel
+            async.parallel(opt.test.ltm, function(err, data){
+                json.service.status.message = data;
+                json.service.status.state = err ? opt.state.bad : opt.state.good;
+                var code = err ? 500 : 200;
+                var type = plain ? 'text/plain' : 'application/json';
+                var body = plain ? opt.state.bad : json;
+
+                if(plain || !request.query.v){
+                    return reply(body).code(code).type(type).header('connection','close');
+                }
                 getHealth(request, function(data){
 
-                    data.health.cpu_proc = _.isNumber(data.health.cpu_proc) ? data.health.cpu_proc.toFixed(2)+'%' : data.health.cpu_proc;
-                    data.health.mem_proc = _.isNumber(data.health.mem_proc) ? data.health.mem_proc.toFixed(2)+'%' : data.health.mem_proc;
-                    data.health.mem_free_percent = data.health.mem_free_percent.toFixed(2)+'%';
+                    if(request.query.h){
+                        // make it human friendly
+                        data.health.cpu_proc = _.isNumber(data.health.cpu_proc) ? data.health.cpu_proc.toFixed(2)+'%' : data.health.cpu_proc;
+                        data.health.mem_proc = _.isNumber(data.health.mem_proc) ? data.health.mem_proc.toFixed(2)+'%' : data.health.mem_proc;
+                        data.health.mem_free_percent = data.health.mem_free_percent.toFixed(2)+'%';
 
-                    data.health.mem_free = prettyBytes(data.health.mem_free);
-                    data.health.mem_total = prettyBytes(data.health.mem_total);
+                        data.health.mem_free = prettyBytes(data.health.mem_free);
+                        data.health.mem_total = prettyBytes(data.health.mem_total);
 
-                    data.health.os_uptime = humanize(data.health.os_uptime,{
-                       delimiter:', ',
-                       language:opt.lang
+                        data.health.os_uptime = humanize(data.health.os_uptime,{
+                           delimiter:', ',
+                           language:opt.lang
+                        });
+                    }
+                    json = _.merge(json, {
+                        service: {
+                            id: opt.id,
+                            name: opt.name,
+                            version: opt.version,
+                            custom: data
+                        }
                     });
 
-                    reply(data);
+                    return reply(json);
                 });
-            }
-            
-            // tests pass then we are peachy:
-            reply(opt.state.good).type('text/plain').header('connection','close');
+            });
         };
 
     // create an endpoint for each server
