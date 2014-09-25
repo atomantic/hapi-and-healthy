@@ -30,7 +30,7 @@ exports.register = function (plugin, options, next) {
                 node:[function(cb){cb(false,'all good');}]
             },
             name: 'my_service',
-            path: '/health',
+            path: '/service-status',
             state:{
                 good: 'GOOD',
                 bad: 'BAD',
