@@ -65,7 +65,7 @@ npm test;
 
 ## Examples:
 
-```
+```javascript
 var server = hapi.createServer();
 
 server.pack.register({
