@@ -21,6 +21,8 @@ Lastly, there's a human friendly version of the machine endpoint, which converts
 v2.0.0 breaks backward compatibility in a few ways:
 - only one endpoint now
 - health information is put into a server.custom payload (only in verbose mode with ?v query)
+- lots of new config options
+- basically just look at the new spec (big changes)
 
 ## Installation:
 
@@ -47,6 +49,17 @@ npm test;
 
 ## Usage:
 
+### Configuration Options
+
+- `auth` - (optional) `string` The name of the auth strategy
+- `name` - (optional) `string` The name of your service (reported in verbose mode)
+- `path` - (optional) `string` An override path for the default `'/health'` endpoint
+- `test.ltm` - `array` A set of async functions to run for testing your node health
+  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+  - `message` is an optional mixed value (json or string) that will give more info about that status
+
+## Examples:
+
 ```
 var server = hapi.createServer();
 
@@ -56,22 +69,22 @@ server.pack.register({
     auth: 'status_auth_strategy',
     name: pjson.name,
     path: '/service-status', // default = /health
-    ltm:{
+    test:{
       // a series of tests that will tell if this node
       // is configured badly or has some other reason it
       // should be pulled out of rotation
-      test:[
-        function(){
+      ltm:[
+        function(cb){
           // Example TODO: test if this node can connect to local memcached
           // if not, there's something wrong with the configuration
           // and this test should return false
-          return true;
+          return cb(false, 'all good');
         },
-        function(){
+        function(cb){
           // Example TODO: check the commit hash/checksum of the deployed code
           // if it doesn't match the manifest, this node is not what we want
           // in the pool
-          return false;
+          return cb(true, {data: 'stuff broke', details: 'x service is dead'});
         }
         // etc...
       ]
