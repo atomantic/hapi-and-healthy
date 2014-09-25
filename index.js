@@ -73,12 +73,11 @@ exports.register = function (plugin, options, next) {
                 var type = plain ? 'text/plain' : 'application/json';
                 var body = plain ? json.service.status.state : json;
 
-                if(plain || !request.query.v){
+                if(_.isUndefined(request.query.v)){
                     return reply(body).code(code).type(type).header('connection','close');
                 }
                 getHealth(request, function(data){
-
-                    if(request.query.h){
+                    if(!_.isUndefined(request.query.h)){
                         // make it human friendly
                         data.health.cpu_proc = _.isNumber(data.health.cpu_proc) ? data.health.cpu_proc.toFixed(2)+'%' : data.health.cpu_proc;
                         data.health.mem_proc = _.isNumber(data.health.mem_proc) ? data.health.mem_proc.toFixed(2)+'%' : data.health.mem_proc;
