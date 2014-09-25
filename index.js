@@ -16,16 +16,17 @@ exports.register = function (plugin, options, next) {
 
     // configuration options
     var opt = _.merge({
-            lang: "en",
+            id: ''
+            lang: 'en',
             test:{
                 ltm:[]
             },
             name: 'my_service',
             path: '/health',
             state:{
-                good: "GOOD",
-                bad: "BAD",
-                warn: "WARN"
+                good: 'GOOD',
+                bad: 'BAD',
+                warn: 'WARN'
             },
             version: '0.0.0'
         }, options );
@@ -45,10 +46,17 @@ exports.register = function (plugin, options, next) {
                });
             });
         },
-        getStatus = function(request,reply){
+        replyStatus = function(request, reply, data){
+            if(request.headers.accept==='text/plain'){
+                reply(data).type('text/plain').header('connection','close');
+            }else{
+                // json
+            }
+        },
+        buildStatus = function(request, reply){
             var output = {
                   service: {
-                    id: "98CF189C-36E0-416B-A2ED-90CE36F8D330",
+                    id: opt.id,
                     name: opt.name,
                     version: opt.version,
                     custom: {},
@@ -104,7 +112,7 @@ exports.register = function (plugin, options, next) {
                 description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
                 notes: "Returns a web service's current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately."
             },
-            handler: getStatus
+            handler: buildStatus
         });
         plugin.route({
             method: 'HEAD',
@@ -115,7 +123,7 @@ exports.register = function (plugin, options, next) {
                 description: "Simple HEAD check API to determine if the node is bad. Responds only with 200 or 500 HTTP response code.",
                 notes: "Retrieve a web service's health status simply via HTTP response code."
             },
-            handler: getStatus
+            handler: buildStatus
         });
 
     });

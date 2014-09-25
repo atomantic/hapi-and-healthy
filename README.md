@@ -51,12 +51,14 @@ npm test;
 
 ### Configuration Options
 
-- `auth` - (optional) `string` The name of the auth strategy
-- `name` - (optional) `string` The name of your service (reported in verbose mode)
-- `path` - (optional) `string` An override path for the default `'/health'` endpoint
-- `test.ltm` - `array` A set of async functions to run for testing your node health
+- `auth` - (`string`) The name of the auth strategy
+- `id` - (`string`) An ID of the state of this system (generally a git commit hash or checksum of the codebase)
+- `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
+- `path` - (`string`) An override path for the default `'/health'` endpoint
+- `test.ltm` - (`array`) A set of async functions to run for testing your node health
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
+- `version` - (`string`) - the version of your service (probably from your package.json)
 
 ## Examples:
 
