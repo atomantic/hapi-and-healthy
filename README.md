@@ -18,11 +18,13 @@ Lastly, there's a human friendly version of the machine endpoint, which converts
 
 
 ## NOTE:
-v2.0.0 breaks backward compatibility in a few ways:
+v2.0.0 breaks backward compatibility in many ways:
 - only one endpoint now
 - health information is put into a server.custom payload (only in verbose mode with ?v query)
 - lots of new config options
+- now returning `git rev-parse HEAD` of main project as `id` in verbose body
 - basically just look at the new spec (big changes)
+- more docs to come as I flush this out for my service :)
 
 ## Installation:
 
@@ -52,12 +54,13 @@ npm test;
 ### Configuration Options
 
 - `auth` - (`string`) The name of the auth strategy
-- `id` - (`string`) An ID of the state of this system (generally a git commit hash or checksum of the codebase)
+- `id` - (`string`) An ID of the state of this system (by default, we will run `git rev-parse head` to fill this value)
 - `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
 - `path` - (`string`) An override path for the default `'/health'` endpoint
 - `test.ltm` - (`array`) A set of async functions to run for testing your node health
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
+  - NOTE: eventually, we'll have more test options here
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
 ## Examples:
@@ -73,20 +76,19 @@ server.pack.register({
     path: '/service-status', // default = /health
     test:{
       // a series of tests that will tell if this node
-      // is configured badly or has some other reason it
-      // should be pulled out of rotation
+      // is valid or not
       ltm:[
         function(cb){
           // Example TODO: test if this node can connect to local memcached
           // if not, there's something wrong with the configuration
           // and this test should return false
-          return cb(null, 'all good');
+          return cb(null, 'memcache is good');
         },
         function(cb){
           // Example TODO: check the commit hash/checksum of the deployed code
           // if it doesn't match the manifest, this node is not what we want
           // in the pool
-          return cb(true, {data: 'stuff broke', details: 'x service is dead'});
+          return cb(null, 'checksum matches manifest');
         }
         // etc...
       ]
@@ -164,7 +166,7 @@ runs full, verbose suite of health checks and returns machine friendly output
     },
     "status": {
       "state": "GOOD",
-      "message": "all clear",
+      "message": ['memcache is good','checksum matches manifest'],
       "published": "2014-09-24T03:27:59.575Z"
     }
   }
@@ -199,7 +201,7 @@ runs full, verbose suite of health checks and returns human friendly output
     },
     "status": {
       "state": "GOOD",
-      "message": "all clear",
+      "message": ['memcache is good','checksum matches manifest'],
       "published": "2014-09-24T03:27:59.575Z"
     }
   }
