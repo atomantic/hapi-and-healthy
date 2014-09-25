@@ -51,9 +51,7 @@ npm test;
 ```
 
 
-## Usage:
-
-### Configuration Options
+## Configuration Options
 
 - `auth` - (`string`) The name of the auth strategy
 - `id` - (`string`) An ID of the state of this system (by default, we will run `git rev-parse head` to fill this value)
@@ -65,9 +63,9 @@ npm test;
   - NOTE: eventually, we'll have more test options here
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
-## Examples:
+### Examples
 
-```
+```javascript
 var server = hapi.createServer();
 
 server.pack.register({
@@ -105,6 +103,14 @@ server.pack.register({
   }
 );
 ```
+
+## API
+
+- The API endpoint is configurable but defaults to `/health`
+- Additionally, the following query params are allowed:
+    - `v` - verbose mode
+    - `h` - human friendly mode
+- GET requests supplied with header `If-None-Match: {etag}` will return 304 not modified and empty body if the etag (base64 encode of status output minus published date) is a match
 
 ## Spec
 
