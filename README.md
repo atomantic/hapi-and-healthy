@@ -18,7 +18,9 @@ Lastly, there's a human friendly version of the machine endpoint, which converts
 
 
 ## NOTE:
-This is an early version. I expect much more configuration and additions over the coming weeks. This is an effort to create a hapi plugin for a service-status API standard that is mostly finalized but still someone in progress.
+v2.0.0 breaks backward compatibility in a few ways:
+- only one endpoint now
+- health information is put into a server.custom payload (only in verbose mode with ?v query)
 
 ## Installation:
 
@@ -52,6 +54,8 @@ server.pack.register({
   plugin: require("hapi-and-healthy"),
   options: {
     auth: 'status_auth_strategy',
+    name: pjson.name,
+    path: '/service-status', // default = /health
     ltm:{
       // a series of tests that will tell if this node
       // is configured badly or has some other reason it
@@ -71,7 +75,8 @@ server.pack.register({
         }
         // etc...
       ]
-    }
+    },
+    version: pjson.version
   }
   },
   function (err){
@@ -82,53 +87,10 @@ server.pack.register({
 );
 ```
 
-## Default Routes:
+## Spec
 
-These are configurable via options.path.health, options.path.human, and options.path.ltm:
 
 ### `/health`
-runs full, verbose suite of health checks and returns machine friendly output
-
-```
-{
-  health: {
-    cpu_load: [
-      1.619140625,
-      1.732421875,
-      1.88818359375
-    ],
-    cpu_proc: 0.1,
-    mem_free: 354811904,
-    mem_free_percent: 0.02065277099609375,
-    mem_proc: 0.0018384456634521484,
-    mem_total: 17179869184,
-    os_uptime: 606723
-  }
-}
-```
-
-
-### `/health/human`
-runs full, verbose suite of health checks and returns human friendly output
-```
-{
-  health: {
-    cpu_load: [
-      2.263671875,
-      2.107421875,
-      2.05810546875
-    ],
-    cpu_proc: "0.00%",
-    mem_free: "464.19 MB",
-    mem_free_percent: "0.03%",
-    mem_proc: "0.00%",
-    mem_total: "17.18 GB",
-    os_uptime: "10 minutes, 7.686 seconds"
-  }
-}
-```
-
-### `/health/ltm`
 returns simple health check for LTM (Local Traffic Manager) monitoring.
 
 This route will enforce auth:false since the LTM needs to hit this so frequently and it does
@@ -159,4 +121,72 @@ Date: Wed, 03 Sep 2014 23:16:33 GMT
 Connection: keep-alive
 
 GOOD%
+```
+
+### `/health?v`
+runs full, verbose suite of health checks and returns machine friendly output
+
+```
+{
+  "service": {
+    "id": "98CF189C-36E0-416B-A2ED-90CE36F8D330",
+    "name": "my_service",
+    "version": "1.0.0",
+    "custom": {
+      health: {
+        cpu_load: [
+          1.619140625,
+          1.732421875,
+          1.88818359375
+        ],
+        cpu_proc: 0.1,
+        mem_free: 354811904,
+        mem_free_percent: 0.02065277099609375,
+        mem_proc: 0.0018384456634521484,
+        mem_total: 17179869184,
+        os_uptime: 606723
+      }
+    },
+    "status": {
+      "state": "GOOD",
+      "message": "all clear",
+      "published": "2014-09-24T03:27:59.575Z"
+    }
+  }
+}
+
+
+```
+
+
+### `/health?v&h`
+runs full, verbose suite of health checks and returns human friendly output
+```
+{
+  "service": {
+    "id": "98CF189C-36E0-416B-A2ED-90CE36F8D330",
+    "name": "my_service",
+    "version": "1.0.0",
+    "custom": {
+      health: {
+        cpu_load: [
+          2.263671875,
+          2.107421875,
+          2.05810546875
+        ],
+        cpu_proc: "0.00%",
+        mem_free: "464.19 MB",
+        mem_free_percent: "0.03%",
+        mem_proc: "0.00%",
+        mem_total: "17.18 GB",
+        os_uptime: "10 minutes, 7.686 seconds"
+      }
+    },
+    "status": {
+      "state": "GOOD",
+      "message": "all clear",
+      "published": "2014-09-24T03:27:59.575Z"
+    }
+  }
+}
 ```

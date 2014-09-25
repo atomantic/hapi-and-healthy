@@ -1,6 +1,6 @@
 {
   "name": "hapi-and-healthy",
-  "version": "1.3.3",
+  "version": "2.0.0",
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/atomantic/hapi-and-healthy",
   "devDependencies": {
+    "async": "^0.9.0",
     "gulp": "^3.8.7",
     "gulp-jshint": "^1.8.4",
     "gulp-lab": "^1.0.0",
@@ -40,6 +41,7 @@
     "opn": "^1.0.0"
   },
   "dependencies": {
+    "async": "^0.9.0",
     "humanize-duration": "^2.0.1",
     "lodash": "^2.4.1",
     "pretty-bytes": "^1.0.1",
