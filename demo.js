@@ -21,6 +21,9 @@ server.pack.register({
         // but I'm dogfooding here:
         plugin: require('./index'),
         options: {
+            // recommend setting the env var with PM2 process.json file
+            // https://github.com/Unitech/PM2/blob/development/ADVANCED_README.md#json-app-declaration
+            env: process.env.APP_ENV||'QA',
             name: pjson.name,
             test:{
                 // a series of tests that will tell if this node

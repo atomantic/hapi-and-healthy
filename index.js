@@ -24,6 +24,7 @@ exports.register = function (plugin, options, next) {
 
     // configuration options
     var opt = _.merge({
+            env: 'DEV',
             id: 'git',
             lang: 'en',
             test:{
@@ -113,6 +114,7 @@ exports.register = function (plugin, options, next) {
                     json = _.merge(json, {
                         service: {
                             custom: data,
+                            env: opt.env,
                             id: opt.id,
                             name: opt.name,
                             version: opt.version

@@ -15,54 +15,53 @@ var pjson = require('../package.json');
 describe('Hapi-and-Healthy plugin', function() {
 
     var server = new Hapi.Server();
-    var schemaLTM = Joi.object().keys({
+    var schemaStatus = Joi.object().keys({
+        state: Joi.string(),
+        message: Joi.array(),
+        published: Joi.string()
+    });
+    var schemaBasic = Joi.object().keys({
         service: Joi.object().keys({
-            status: Joi.object().keys({
-                state: Joi.string(),
-                message: Joi.array(),
-                published: Joi.string()
-            })
+            status: schemaStatus
         })
     });
     var schemaFull = Joi.object().keys({
         service: Joi.object().keys({
+            env: Joi.string(),
             id: Joi.string(),
             custom: Joi.object().keys({
-                cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
-                cpu_proc: Joi.number().min(0).max(101).required(),
-                mem_free: Joi.number().integer().required(),
-                mem_free_percent: Joi.number().min(0).max(1).required(),
-                mem_proc: Joi.number().min(0).max(1).required(),
-                mem_total: Joi.number().integer().required(),
-                os_uptime: Joi.number().required()
+                health:{
+                    cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+                    cpu_proc: Joi.number().min(0).max(101).required(),
+                    mem_free: Joi.number().integer().required(),
+                    mem_free_percent: Joi.number().min(0).max(1).required(),
+                    mem_proc: Joi.number().min(0).max(1).required(),
+                    mem_total: Joi.number().integer().required(),
+                    os_uptime: Joi.number().required()
+                }
             }),
             name: Joi.string(),
-            status: Joi.object().keys({
-                state: Joi.string(),
-                message: Joi.array(),
-                published: Joi.string()
-            }),
+            status: schemaStatus,
             version: Joi.string()
         })
     });
     var schemaHuman = Joi.object().keys({
         service: Joi.object().keys({
+            env: Joi.string(),
             id: Joi.string(),
             custom: Joi.object().keys({
-                cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
-                cpu_proc: Joi.string().required(),
-                mem_free: Joi.string().required(),
-                mem_free_percent: Joi.string().required(),
-                mem_proc: Joi.string().required(),
-                mem_total: Joi.string().required(),
-                os_uptime: Joi.string().required()
+                health:{
+                    cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+                    cpu_proc: Joi.string().required(),
+                    mem_free: Joi.string().required(),
+                    mem_free_percent: Joi.string().required(),
+                    mem_proc: Joi.string().required(),
+                    mem_total: Joi.string().required(),
+                    os_uptime: Joi.string().required()
+                }
             }),
             name: Joi.string(),
-            status: Joi.object().keys({
-                state: Joi.string(),
-                message: Joi.array(),
-                published: Joi.string()
-            }),
+            status: schemaStatus,
             version: Joi.string()
         })
     });
@@ -71,6 +70,7 @@ describe('Hapi-and-Healthy plugin', function() {
         server.pack.register({
             plugin: require('../'),
             options: {
+                env: "FOO",
                 id: '1',
                 name: pjson.name,
                 test:{
@@ -94,7 +94,7 @@ describe('Hapi-and-Healthy plugin', function() {
             done();
         });
     });
- 
+
     it('should register arbitrary routes', function(done) {
         var table = server.table();
 
@@ -126,7 +126,7 @@ describe('Hapi-and-Healthy plugin', function() {
             url: "/service-status"
         }, function(response) {
             expect(response.statusCode).to.equal(200);
-            Joi.validate(response.result, schemaLTM, function (err, value) { 
+            Joi.validate(response.result, schemaBasic, function (err, value) {
                 expect(err).to.not.exist;
                 done();
             });
@@ -150,12 +150,15 @@ describe('Hapi-and-Healthy plugin', function() {
             url: "/service-status?v"
         }, function(response) {
 
-            var health = response.result.health;
             expect(response.statusCode).to.equal(200);
+            expect(response.result.service).to.be.instanceof(Object);
+            expect(response.result.service.env).to.equal('FOO');
+            expect(response.result.service.id).to.equal('1');
+            expect(response.result.service.name).to.equal(pjson.name);
+            expect(response.result.service.version).to.equal(pjson.version);
 
-            Joi.validate(health, schemaFull, function (err, value) {
-                expect(err).to.equal(null);
-                //console.log(value);
+            Joi.validate(response.result, schemaFull, function (err, value) {
+                expect(err).to.not.exist;
                 done();
             });
 
@@ -169,11 +172,15 @@ describe('Hapi-and-Healthy plugin', function() {
             url: "/service-status?v&h"
         }, function(response) {
 
-            var health = response.result.health;
             expect(response.statusCode).to.equal(200);
+            expect(response.result.service).to.be.instanceof(Object);
+            expect(response.result.service.env).to.equal('FOO');
+            expect(response.result.service.id).to.equal('1');
+            expect(response.result.service.name).to.equal(pjson.name);
+            expect(response.result.service.version).to.equal(pjson.version);
 
-            Joi.validate(health, schemaHuman, function (err, value) {
-                expect(err).to.equal(null);
+            Joi.validate(response.result, schemaHuman, function (err, value) {
+                expect(err).to.not.exist;
                 done();
             });
 
