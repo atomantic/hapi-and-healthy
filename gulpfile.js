@@ -53,7 +53,7 @@ gulp.task( "supervise", function() {
 gulp.task('openbrowser', function() {
   // supervise takes half a second to start it up
   setTimeout(function(){
-    opn( 'http://' + server.host + ':' + server.port +'/health');
+    opn( 'http://' + server.host + ':' + server.port +'/service-status');
   },500);
 });
 
