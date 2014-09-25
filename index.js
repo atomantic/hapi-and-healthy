@@ -1,7 +1,7 @@
 // http://lodash.com/
 var _ = require('lodash');
 // https://github.com/atomantic/undermore
-mixin(require('undermore'));
+_.mixin(require('undermore'));
 _.mixin({
     isotime:function(){
         return (new Date()).toISOString();
@@ -71,7 +71,7 @@ exports.register = function (plugin, options, next) {
                 json.service.status.state = err ? opt.state.bad : opt.state.good;
                 var code = err ? 500 : 200;
                 var type = plain ? 'text/plain' : 'application/json';
-                var body = plain ? opt.state.bad : json;
+                var body = plain ? json.service.status.state : json;
 
                 if(plain || !request.query.v){
                     return reply(body).code(code).type(type).header('connection','close');

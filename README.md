@@ -80,7 +80,7 @@ server.pack.register({
           // Example TODO: test if this node can connect to local memcached
           // if not, there's something wrong with the configuration
           // and this test should return false
-          return cb(false, 'all good');
+          return cb(null, 'all good');
         },
         function(cb){
           // Example TODO: check the commit hash/checksum of the deployed code

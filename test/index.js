@@ -19,7 +19,7 @@ describe('Hapi-and-Healthy plugin', function() {
         service: Joi.object().keys({
             status: Joi.object().keys({
                 state: Joi.string(),
-                message: Joi.string(),
+                message: Joi.array(),
                 published: Joi.string()
             })
         })
@@ -39,7 +39,7 @@ describe('Hapi-and-Healthy plugin', function() {
             name: Joi.string(),
             status: Joi.object().keys({
                 state: Joi.string(),
-                message: Joi.string(),
+                message: Joi.array(),
                 published: Joi.string()
             }),
             version: Joi.string()
@@ -60,7 +60,7 @@ describe('Hapi-and-Healthy plugin', function() {
             name: Joi.string(),
             status: Joi.object().keys({
                 state: Joi.string(),
-                message: Joi.string(),
+                message: Joi.array(),
                 published: Joi.string()
             }),
             version: Joi.string()
@@ -75,9 +75,9 @@ describe('Hapi-and-Healthy plugin', function() {
                 name: pjson.name,
                 test:{
                     ltm:[function(cb){
-                        return cb(false,'memcache all good');
+                        return cb(null,'memcache all good');
                     },function(cb){
-                        return cb(true,'checksum failed');
+                        return cb(null,'checksum good');
                     }]
                 },
                 path: '/service-status',
@@ -100,12 +100,12 @@ describe('Hapi-and-Healthy plugin', function() {
 
         expect(table).to.have.length(2);
         expect(table[0].path).to.equal('/service-status');
-        expect(table[3].path).to.equal('/service-status');
+        expect(table[1].path).to.equal('/service-status');
 
         done();
     });
 
-    it('should respond with 500 code and plaintext at non-verbose endpoint',function(done){
+    it('should respond with 200 code and plaintext at non-verbose endpoint',function(done){
         server.inject({
             method: "GET",
             url: "/service-status",
@@ -113,20 +113,19 @@ describe('Hapi-and-Healthy plugin', function() {
                 accept: 'text/plain'
             }
         }, function(response) {
-
-            expect(response.statusCode).to.equal(500);
-            expect(response.result).to.equal('FATAL');
+            expect(response.statusCode).to.equal(200);
+            expect(response.result).to.equal('HEALTHY');
 
             done();
         });
     });
 
-    it('should respond with 500 code and json at non-verbose endpoint',function(done){
+    it('should respond with 200 code and json at non-verbose endpoint',function(done){
         server.inject({
             method: "GET",
             url: "/service-status"
         }, function(response) {
-            expect(response.statusCode).to.equal(500);
+            expect(response.statusCode).to.equal(200);
             Joi.validate(response.result, schemaLTM, function (err, value) { 
                 expect(err).to.not.exist;
                 done();
@@ -139,7 +138,7 @@ describe('Hapi-and-Healthy plugin', function() {
             method: "HEAD",
             url: "/service-status"
         }, function(response) {
-            expect(response.statusCode).to.equal(500);
+            expect(response.statusCode).to.equal(200);
             done();
         });
     });

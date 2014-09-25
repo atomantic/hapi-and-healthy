@@ -1,3 +1,4 @@
 {
-    "node": true
+	"expr":true,
+    "node":true
 }
