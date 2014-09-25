@@ -74,7 +74,7 @@ describe('Hapi-and-Healthy plugin', function() {
                 id: '1',
                 name: pjson.name,
                 test:{
-                    ltm:[function(cb){
+                    node:[function(cb){
                         return cb(null,'memcache all good');
                     },function(cb){
                         return cb(null,'checksum good');

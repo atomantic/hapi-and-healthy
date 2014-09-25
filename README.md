@@ -79,7 +79,7 @@ server.pack.register({
     test:{
       // a series of tests that will tell if this node
       // is valid or not
-      ltm:[
+      node:[
         function(cb){
           // Example TODO: test if this node can connect to local memcached
           // if not, there's something wrong with the configuration
@@ -115,9 +115,9 @@ returns simple health check for LTM (Local Traffic Manager) monitoring.
 This route will enforce auth:false since the LTM needs to hit this so frequently and it does
 not expose sensitive data
 
-If the node fails any of the test functions supplied in `options.ltm.test`
+If the node fails any of the test functions supplied in `options.test.node`
 ```
-⇒  curl -i http://127.0.0.1:3192/health/ltm
+⇒  curl -i -H "Accept: text/plain" http://127.0.0.1:3192/health
 HTTP/1.1 500 Internal Server Error
 content-type: text/plain; charset=utf-8
 content-length: 3
@@ -128,9 +128,9 @@ Connection: keep-alive
 BAD%
 ```
 
-OR, if the node passes all the LTM tests supplied in `options.ltm.test`
+OR, if the node passes all the LTM tests supplied in `options.test.node`
 ```
-⇒  curl -i http://127.0.0.1:3192/health/ltm
+⇒  curl -i -H "Accept: text/plain" http://127.0.0.1:3192/health
 HTTP/1.1 200 OK
 content-type: text/plain; charset=utf-8
 content-length: 4
@@ -145,30 +145,33 @@ GOOD%
 ### `/health?v`
 runs full, verbose suite of health checks and returns machine friendly output
 
-```
+```json
 {
   "service": {
     "id": "98CF189C-36E0-416B-A2ED-90CE36F8D330",
     "name": "my_service",
     "version": "1.0.0",
     "custom": {
-      health: {
-        cpu_load: [
+      "health": {
+        "cpu_load": [
           1.619140625,
           1.732421875,
           1.88818359375
         ],
-        cpu_proc: 0.1,
-        mem_free: 354811904,
-        mem_free_percent: 0.02065277099609375,
-        mem_proc: 0.0018384456634521484,
-        mem_total: 17179869184,
-        os_uptime: 606723
+        "cpu_proc": 0.1,
+        "mem_free": 354811904,
+        "mem_free_percent": 0.02065277099609375,
+        "mem_proc": 0.0018384456634521484,
+        "mem_total": 17179869184,
+        "os_uptime": 606723
       }
     },
     "status": {
       "state": "GOOD",
-      "message": ['memcache is good','checksum matches manifest'],
+      "message": [
+        "memcache is good",
+        "checksum matches manifest"
+      ],
       "published": "2014-09-24T03:27:59.575Z"
     }
   }
@@ -180,30 +183,33 @@ runs full, verbose suite of health checks and returns machine friendly output
 
 ### `/health?v&h`
 runs full, verbose suite of health checks and returns human friendly output
-```
+```json
 {
   "service": {
     "id": "98CF189C-36E0-416B-A2ED-90CE36F8D330",
     "name": "my_service",
     "version": "1.0.0",
     "custom": {
-      health: {
-        cpu_load: [
+      "health": {
+        "cpu_load": [
           2.263671875,
           2.107421875,
           2.05810546875
         ],
-        cpu_proc: "0.00%",
-        mem_free: "464.19 MB",
-        mem_free_percent: "0.03%",
-        mem_proc: "0.00%",
-        mem_total: "17.18 GB",
-        os_uptime: "10 minutes, 7.686 seconds"
+        "cpu_proc": "0.00%",
+        "mem_free": "464.19 MB",
+        "mem_free_percent": "0.03%",
+        "mem_proc": "0.00%",
+        "mem_total": "17.18 GB",
+        "os_uptime": "10 minutes, 7.686 seconds"
       }
     },
     "status": {
       "state": "GOOD",
-      "message": ['memcache is good','checksum matches manifest'],
+      "message": [
+        "memcache is good",
+        "checksum matches manifest"
+      ],
       "published": "2014-09-24T03:27:59.575Z"
     }
   }

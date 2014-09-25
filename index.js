@@ -25,7 +25,7 @@ exports.register = function (plugin, options, next) {
             id: 'git',
             lang: 'en',
             test:{
-                ltm:[function(cb){cb(false,'all good');}]
+                node:[function(cb){cb(false,'all good');}]
             },
             name: 'my_service',
             path: '/health',
@@ -67,7 +67,7 @@ exports.register = function (plugin, options, next) {
             // if any one of our LTM tests fail, this node is bad
             // and should immediately be removed from rotation
             // run ltm tests async in parallel
-            async.parallel(opt.test.ltm, function(err, data){
+            async.parallel(opt.test.node, function(err, data){
                 json.service.status.message = data;
                 json.service.status.state = err ? opt.state.bad : opt.state.good;
                 var code = err ? 500 : 200;
