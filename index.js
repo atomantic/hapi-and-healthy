@@ -106,7 +106,7 @@ exports.register = function (plugin, options, next) {
                         data.health.mem_free = prettyBytes(data.health.mem_free);
                         data.health.mem_total = prettyBytes(data.health.mem_total);
 
-                        data.health.os_uptime = humanize(data.health.os_uptime,{
+                        data.health.os_uptime = humanize((data.health.os_uptime*1000),{
                            delimiter:', ',
                            language:opt.lang
                         });
