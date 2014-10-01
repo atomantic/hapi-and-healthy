@@ -62,43 +62,74 @@ npm test;
   - NOTE: eventually, we'll have more test options here
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
-### Examples
+### Example
 
 ```javascript
+
+// Hapi Server
 var server = hapi.createServer();
 
+// capture app ENV
+var env = process.env.NODE_ENV||'DEV';
+
+// node os (for test example)
+var os = require('os');
+
+// local memcached (for test example)
+var Memcached = require('memcached');
+var memcached = new Memcached('localhost:11211');
+
+// Register the plugin with custom config
 server.pack.register({
   plugin: require("hapi-and-healthy"),
   options: {
-    auth: 'status_auth_strategy',
-    env: process.env.NODE_ENV||'DEV',
+    env: env,
     name: pjson.name,
     test:{
-      // a series of tests that will tell if this node
-      // is valid or not
+      // a series of tests that run in async parallel
+      // if any one of them fails, it returns immediately to the async callback
+      // which tells the API to reply with the failure.
       node:[
+        // TEST 1: validate the version of this codebase matches release for this ENV
         function(cb){
-          // Example TODO: test if this node can connect to local memcached
-          // if not, there's something wrong with the configuration
-          // and this test should return false
-          return cb(null, 'memcache is good');
+            // check the release version against current codebase.
+            // At deploy time, we update memcache with the release version for this env
+            // using a deploy script (stored under 'app_version_'+env)
+            memcached.get('app_version_'+env,function(err,data){
+                if(err){return cb(true, err);}
+                if(data!==pjson.version){
+                    // this codebase does not match our release manifest
+                    // don't allow it in rotation
+                    return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version);
+                }
+                // ok, all good on this check
+                return cb(null, 'matches expected version ('+pjson.version+')');
+            });
+
         },
+        // TEST 2: make sure we can write and read to memcache
         function(cb){
-          // Example TODO: check the commit hash/checksum of the deployed code
-          // if it doesn't match the manifest, this node is not what we want
-          // in the pool
-          return cb(null, 'checksum matches manifest');
+            // store new unique value under hostname (unique to this node)
+            var uuid = _.uuid(), // using undermore uuid
+                name = os.hostname();
+            memcached.set(name, uuid, 60, function(err,data){
+                if(err){return cb(true, err);}
+                memcached.get(name,function(err,data){
+                    if(err){return cb(true, err);}
+                    if(data!==uuid){
+                        return cb(true, 'memcache write/read fail. Wrote '+uuid+' but read '+data);
+                    }
+                    return cb(null, 'memcached running well');
+                });
+            });
+
         }
-        // etc...
       ]
     },
     version: pjson.version
-  }
-  },
+  }},
   function (err){
-    if(err){
-      throw err;
-    }
+    if(err){throw err;}
   }
 );
 ```
