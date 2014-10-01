@@ -80,7 +80,7 @@ exports.register = function (plugin, options, next) {
                     json.service.status.state = state;
                     type = 'application/json';
                     body = json;
-                    etag = _.base64_encode(body);
+                    etag = _.base64_encode(JSON.stringify(body));
                     // now add published date
                     body.service.status.published = _.isotime();
                 }else{
