@@ -96,7 +96,8 @@ server.pack.register({
             // At deploy time, we update memcache with the release version for this env
             // using a deploy script (stored under 'app_version_'+env)
             memcached.get('app_version_'+env,function(err,data){
-                if(err){return cb(true, err);}
+                if(err) return cb(true, err);
+
                 if(data!==pjson.version){
                     // this codebase does not match our release manifest
                     // don't allow it in rotation
@@ -113,9 +114,11 @@ server.pack.register({
             var uuid = _.uuid(), // using undermore uuid
                 name = os.hostname();
             memcached.set(name, uuid, 60, function(err,data){
-                if(err){return cb(true, err);}
+                if(err) return cb(true, err);
+
                 memcached.get(name,function(err,data){
-                    if(err){return cb(true, err);}
+                    if(err) return cb(true, err);
+
                     if(data!==uuid){
                         return cb(true, 'memcache write/read fail. Wrote '+uuid+' but read '+data);
                     }
