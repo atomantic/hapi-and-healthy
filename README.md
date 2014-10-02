@@ -51,6 +51,7 @@ npm test;
 ## Configuration Options
 
 - `auth` - (`string`) The name of the auth strategy
+- `custom` - (`object`) Additional custom data to return (e.g. custom:{memcached:memcached.servers})
 - `env` - (`string`) The running environment of your app (e.g. `DEV`, `QA`, `STAGE`, `PROD`). This will be returned in verbose output for consumers wishing to know what environment your service thinks it's running in.
 - `id` - (`string`) An ID of the state of this system (by default, we will run `git rev-parse head` to fill this value)
 - `lang` - (`string`) Default 'en' a language override for the human output health data. This endpoint uses the [Humanize Duration package](https://www.npmjs.org/package/humanize-duration) so any valid language override for that library will be valid here (`fr`, `de`, `ko`, etc)
@@ -83,6 +84,9 @@ var memcached = new Memcached('localhost:11211');
 server.pack.register({
   plugin: require("hapi-and-healthy"),
   options: {
+    custom: {
+        memcached: memcached.servers
+    },
     env: env,
     name: pjson.name,
     test:{
