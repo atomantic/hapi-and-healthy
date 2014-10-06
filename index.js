@@ -31,6 +31,7 @@ exports.register = function (plugin, options, next) {
             test:{
                 node:[function(cb){cb(false,'all good');}]
             },
+            defaultContentType: 'text/plain',
             name: 'my_service',
             path: '/service-status',
             state:{
@@ -58,15 +59,24 @@ exports.register = function (plugin, options, next) {
         },
         buildStatus = function(request, reply){
             var etag,
-                type = 'text/plain', // default response type
-                plain = request.headers.accept===type, // wants text/plain
+                accept = request.headers.accept,
+                type = opt.defaultContentType,
+                plain = 'text/plain',
+                json = 'application/json',
                 match = request.headers['if-none-match'],
-                json = {
+                responseJSON = {
                   service: {
                     status: {
                     }
                   }
                 };
+            if(!accept || accept.indexOf('*/*')!==-1){
+                type = opt.defaultContentType;
+            }else if(accept.indexOf(json)!==-1){
+                type = json;
+            }else if(accept.indexOf(plain)!==-1){
+                type = plain;
+            }
             // if any one of our node tests fail, this node is bad
             // and should immediately be removed from rotation
             // run tests in parallel async
@@ -76,11 +86,12 @@ exports.register = function (plugin, options, next) {
                 // we are only going to return 200/500
                 var code = err ? 500 : 200;
                 var body = state;
-                if(!plain){
-                    json.service.status.message = data;
-                    json.service.status.state = state;
+
+                if(type!==plain){
+                    responseJSON.service.status.message = data;
+                    responseJSON.service.status.state = state;
                     type = 'application/json';
-                    body = json;
+                    body = responseJSON;
                     etag = _.base64_encode(JSON.stringify(body));
                     // now add published date
                     body.service.status.published = _.isotime();
@@ -112,7 +123,7 @@ exports.register = function (plugin, options, next) {
                            language:opt.lang
                         });
                     }
-                    json = _.merge(json, {
+                    responseJSON = _.merge(responseJSON, {
                         service: {
                             custom: _.merge(data, opt.custom),
                             env: opt.env,
@@ -121,14 +132,14 @@ exports.register = function (plugin, options, next) {
                             version: opt.version
                         }
                     });
-                    if(json.service.id==='git'){
+                    if(responseJSON.service.id==='git'){
                         // set it to the git commit hash
                         git.long(function(str){
-                            json.service.id = str;
-                            return reply(json).etag(etag);
+                            responseJSON.service.id = str;
+                            return reply(responseJSON).etag(etag);
                         });
                     }else{
-                        return reply(json).etag(etag);
+                        return reply(responseJSON).etag(etag);
                     }
                 });
             });
