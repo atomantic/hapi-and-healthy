@@ -120,16 +120,14 @@ describe('Hapi-and-Healthy plugin', function() {
         });
     });
 
-    it('should respond with 200 code and json at non-verbose endpoint',function(done){
+    it('should respond with 200 code and text/plain at non-verbose endpoint',function(done){
         server.inject({
             method: "GET",
             url: "/service-status"
         }, function(response) {
             expect(response.statusCode).to.equal(200);
-            Joi.validate(response.result, schemaBasic, function (err, value) {
-                expect(err).to.not.exist;
-                done();
-            });
+            expect(response.result).to.equal('HEALTHY');
+            done();
         });
     });
 
