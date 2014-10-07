@@ -64,19 +64,26 @@ exports.register = function (plugin, options, next) {
                 plain = 'text/plain',
                 json = 'application/json',
                 match = request.headers['if-none-match'],
+                verbose = !_.isUndefined(request.query.v),
                 responseJSON = {
                   service: {
                     status: {
                     }
                   }
                 };
-            if(!accept || accept.indexOf('*/*')!==-1){
-                type = opt.defaultContentType;
-            }else if(accept.indexOf(json)!==-1){
+            if(verbose){
+                // force json
                 type = json;
-            }else if(accept.indexOf(plain)!==-1){
-                type = plain;
+            }else{
+                if(!accept || accept.indexOf('*/*')!==-1){
+                    type = opt.defaultContentType;
+                }else if(accept.indexOf(json)!==-1){
+                    type = json;
+                }else if(accept.indexOf(plain)!==-1){
+                    type = plain;
+                }
             }
+
             // if any one of our node tests fail, this node is bad
             // and should immediately be removed from rotation
             // run tests in parallel async
@@ -104,7 +111,7 @@ exports.register = function (plugin, options, next) {
                     return reply().code(304);
                 }
 
-                if(_.isUndefined(request.query.v)){
+                if(!verbose){
                     return reply(body).code(code).type(type).etag(etag);
                 }
                 // we want more info
