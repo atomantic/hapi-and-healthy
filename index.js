@@ -7,14 +7,6 @@ _.mixin({
         return (new Date()).toISOString();
     }
 });
-// http://nodejs.org/api/os.html
-var os = require('os');
-// https://www.npmjs.org/package/usage
-var usage = require('usage');
-// https://www.npmjs.org/package/humanize-duration
-var humanize = require("humanize-duration");
-// https://www.npmjs.org/package/pretty-bytes
-var prettyBytes = require("pretty-bytes");
 // https://www.npmjs.org/package/async
 var async = require('async');
 // https://www.npmjs.org/package/git-rev
@@ -40,25 +32,44 @@ exports.register = function (plugin, options, next) {
                 warn: 'WARN'
             },
             usage: true,
+            usage_proc: true,
             version: '0.0.0'
         }, options );
 
-    var getHealth = function(request, cb){
-            usage.lookup(process.pid, function(err, usage) {
+    if(opt.usage){
+        // http://nodejs.org/api/os.html
+        var os = require('os');
+
+        if(opt.usage_proc){
+            // https://www.npmjs.org/package/usage
+            var usage = require('usage');
+        }
+        // https://www.npmjs.org/package/humanize-duration
+        var humanize = require("humanize-duration");
+        // https://www.npmjs.org/package/pretty-bytes
+        var prettyBytes = require("pretty-bytes");
+    }
+
+    var getUsage = function(request, cb){
+            var returnUsage = function(err, usage) {
+                if(err) console.error(err);
+
                 var health = {
                     cpu_load: os.loadavg(),
-                    cpu_proc: err || usage.cpu,
                     mem_free: os.freemem(),
                     mem_free_percent: os.freemem()/os.totalmem(),
-                    mem_proc: err || usage.memory/os.totalmem(),
                     mem_total: os.totalmem(),
                     os_uptime: os.uptime()
                 };
+                if(usage){
+                    health.cpu_proc = err || usage.cpu;
+                    health.mem_proc = err || usage.memory/os.totalmem();
+                }
                 if(!_.isUndefined(request.query.h)){
                     // make it human friendly
-                    if(_.isNumber(health.cpu_proc))
+                    if(usage && _.isNumber(health.cpu_proc))
                         health.cpu_proc = health.cpu_proc.toFixed(2)+'%';
-                    if(_.isNumber(health.mem_proc))
+                    if(usage && _.isNumber(health.mem_proc))
                         health.mem_proc = health.mem_proc.toFixed(2)+'%';
 
                     health.mem_free_percent = health.mem_free_percent.toFixed(2)+'%';
@@ -72,10 +83,14 @@ exports.register = function (plugin, options, next) {
                 cb({
                    health: health
                 });
-            });
-        },
-        getVerbose = function(request, cb){
-
+            }
+            if(opt.usage_proc){
+                // query the process usage
+                usage.lookup(process.pid, returnUsage);
+            }else{
+                // just use OS usage
+                returnUsage();
+            }
         },
         buildStatus = function(request, reply){
             var etag,
@@ -156,7 +171,7 @@ exports.register = function (plugin, options, next) {
                 };
                 // we want more info
                 if(opt.usage){
-                    getHealth(request, fulfill);
+                    getUsage(request, fulfill);
                 }else{
                     fulfill();
                 }

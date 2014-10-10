@@ -15,6 +15,7 @@ var pjson = require('../package.json');
 describe('Hapi-and-Healthy plugin', function() {
 
     var server = new Hapi.Server();
+
     var schemaStatus = Joi.object().keys({
         state: Joi.string(),
         message: Joi.array(),
@@ -25,77 +26,74 @@ describe('Hapi-and-Healthy plugin', function() {
             status: schemaStatus
         })
     });
-    var schemaFull = Joi.object().keys({
-        service: Joi.object().keys({
-            env: Joi.string(),
-            id: Joi.string(),
-            custom: Joi.object().keys({
-                health:{
-                    cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
-                    cpu_proc: Joi.number().min(0).max(101).required(),
-                    mem_free: Joi.number().integer().required(),
-                    mem_free_percent: Joi.number().min(0).max(1).required(),
-                    mem_proc: Joi.number().min(0).max(1).required(),
-                    mem_total: Joi.number().integer().required(),
-                    os_uptime: Joi.number().required()
-                }
-            }),
-            name: Joi.string(),
-            status: schemaStatus,
-            version: Joi.string()
-        })
-    });
-    var schemaHuman = Joi.object().keys({
-        service: Joi.object().keys({
-            env: Joi.string(),
-            id: Joi.string(),
-            custom: Joi.object().keys({
-                health:{
-                    cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
-                    cpu_proc: Joi.string().required(),
-                    mem_free: Joi.string().required(),
-                    mem_free_percent: Joi.string().required(),
-                    mem_proc: Joi.string().required(),
-                    mem_total: Joi.string().required(),
-                    os_uptime: Joi.string().required()
-                }
-            }),
-            name: Joi.string(),
-            status: schemaStatus,
-            version: Joi.string()
-        })
-    });
 
-    it('should load plugin succesfully', function(done){
-        server.pack.register({
-            plugin: require('../'),
-            options: {
-                env: "FOO",
-                id: '1',
-                name: pjson.name,
-                test:{
-                    node:[function(cb){
-                        return cb(null,'memcache all good');
-                    },function(cb){
-                        return cb(null,'checksum good');
-                    }]
-                },
-                path: '/service-status',
-                state:{
-                    good: "HEALTHY",
-                    bad: "FATAL",
-                    warn: "WARN"
-                },
-                version: pjson.version
-            }
-        },
-        function(err) {
-            expect(err).to.equal(undefined);
-            done();
+    var createExpectedSchema = function(conf){
+
+        var healthKeys = {
+            cpu_load: conf.mech ? 
+                Joi.array().length(3).includes(Joi.number()).required() : 
+                Joi.array().length(3).includes(Joi.number()).required(),
+            mem_free: conf.mech ? 
+                Joi.number().integer().required() : 
+                Joi.string().required(),
+            mem_free_percent: conf.mech ? 
+                Joi.number().min(0).max(1).required() :
+                Joi.string().required(),
+            mem_total: conf.mech ? 
+                Joi.number().integer().required() :
+                Joi.string().required(),
+            os_uptime: conf.mech ? 
+                Joi.number().required() :
+                Joi.string().required()
+        };
+        if(conf.usage){
+            healthKeys.cpu_proc = conf.mech ? 
+                Joi.number().min(0).max(101).required() : 
+                Joi.string().required();
+            healthKeys.mem_proc = conf.mech ? 
+                Joi.number().min(0).max(1).required() :
+                Joi.string().required();
+        }
+
+        return Joi.object().keys({
+            service: Joi.object().keys({
+                env: Joi.string().required(),
+                id: Joi.string().required(),
+                custom: Joi.object().keys(conf.usage ? {
+                    health: Joi.object().keys(healthKeys).required()
+                } : {}),
+                name: Joi.string().required(),
+                status: schemaStatus.required(),
+                version: Joi.string().required()
+            }).required()
         });
-    });
+    };
 
-    it('should register arbitrary routes', function(done) {
+
+    var pluginConfig = {
+        plugin: require('../'),
+        options: {
+            env: "FOO",
+            id: '1',
+            name: pjson.name,
+            test:{
+                node:[function(cb){
+                    return cb(null,'memcache all good');
+                },function(cb){
+                    return cb(null,'checksum good');
+                }]
+            },
+            state:{
+                good: 'HEALTHY',
+                bad: 'FATAL',
+                warn: 'WARN'
+            },
+            path: '/service-status',
+            version: pjson.version
+        }
+    };
+
+    var shouldRegisterRoutes = function(done) {
         var table = server.table();
 
         expect(table).to.have.length(2);
@@ -103,9 +101,8 @@ describe('Hapi-and-Healthy plugin', function() {
         expect(table[1].path).to.equal('/service-status');
 
         done();
-    });
-
-    it('should respond with 200 code and plaintext at non-verbose endpoint',function(done){
+    };
+    var should200plainExplicit = function(done){
         server.inject({
             method: "GET",
             url: "/service-status",
@@ -118,20 +115,19 @@ describe('Hapi-and-Healthy plugin', function() {
 
             done();
         });
-    });
-
-    it('should respond with 200 code and text/plain at non-verbose endpoint',function(done){
+    };
+    var should200plainDefault = function(done){
         server.inject({
             method: "GET",
             url: "/service-status"
         }, function(response) {
             expect(response.statusCode).to.equal(200);
             expect(response.result).to.equal('HEALTHY');
+
             done();
         });
-    });
-
-    it('should respond with 200 code with HEAD request',function(done){
+    };
+    var shouldHead200 = function(done){
         server.inject({
             method: "HEAD",
             url: "/service-status"
@@ -139,50 +135,86 @@ describe('Hapi-and-Healthy plugin', function() {
             expect(response.statusCode).to.equal(200);
             done();
         });
+    };
+    var should200Verbose = function(conf){
+
+        return function(done){
+            server.inject({
+                method: "GET",
+                url: "/service-status?v" + (conf.mech ? '' : '&h')
+            }, function(response) {
+
+                expect(response.statusCode).to.equal(200);
+                expect(response.result.service).to.be.instanceof(Object);
+                expect(response.result.service.env).to.equal('FOO');
+                expect(response.result.service.id).to.equal('1');
+                expect(response.result.service.name).to.equal(pjson.name);
+                expect(response.result.service.version).to.equal(pjson.version);
+
+                Joi.validate(response.result, 
+                    createExpectedSchema(conf),
+                    function (err, value) {
+                        expect(err).to.not.exist;
+                        done();
+                    }
+                );
+
+            });
+        };
+    };
+
+    describe('Basic Configuration (Defaults)', function() {
+
+        it('should load plugin succesfully', function(done){
+            server.pack.register(pluginConfig,
+            function(err) {
+                expect(err).to.equal(undefined);
+                done();
+            });
+        });
+
+        it('should register arbitrary routes', shouldRegisterRoutes);
+
+        it('should respond with 200 code and text/plain explicitly at non-verbose endpoint', should200plainExplicit);
+
+        it('should respond with 200 code and text/plain by default at non-verbose endpoint', should200plainDefault);
+
+        it('should respond with 200 code with HEAD request', shouldHead200);
+
+        it('should respond with 200 code and expected schema at verbose endpoint', should200Verbose({mech:true,usage:true}));
+
+        it('should respond with 200 code and expected schema at human endpoint', should200Verbose({mech:false,usage:true}));
     });
 
 
-    it('should respond with 200 code and expected schema at verbose endpoint',function(done){
-        server.inject({
-            method: "GET",
-            url: "/service-status?v"
-        }, function(response) {
+    describe('Restricted Configuration', function() {
+        
+        it('should load restricted plugin succesfully', function(done){
 
-            expect(response.statusCode).to.equal(200);
-            expect(response.result.service).to.be.instanceof(Object);
-            expect(response.result.service.env).to.equal('FOO');
-            expect(response.result.service.id).to.equal('1');
-            expect(response.result.service.name).to.equal(pjson.name);
-            expect(response.result.service.version).to.equal(pjson.version);
-
-            Joi.validate(response.result, schemaFull, function (err, value) {
-                expect(err).to.not.exist;
-                done();
+            server.stop(function () {
+                server = new Hapi.Server();
+                
+                // remove usage data
+                pluginConfig.options.usage = false;
+                server.pack.register(pluginConfig,
+                function(err) {
+                    expect(err).to.equal(undefined);
+                    done();
+                });
             });
-
         });
-    });
 
+        it('should register arbitrary routes', shouldRegisterRoutes);
 
-    it('should respond with 200 code and expected schema at human endpoint',function(done){
-        server.inject({
-            method: "GET",
-            url: "/service-status?v&h"
-        }, function(response) {
+        it('should respond with 200 code and text/plain explicitly at non-verbose endpoint', should200plainExplicit);
 
-            expect(response.statusCode).to.equal(200);
-            expect(response.result.service).to.be.instanceof(Object);
-            expect(response.result.service.env).to.equal('FOO');
-            expect(response.result.service.id).to.equal('1');
-            expect(response.result.service.name).to.equal(pjson.name);
-            expect(response.result.service.version).to.equal(pjson.version);
+        it('should respond with 200 code and text/plain by default at non-verbose endpoint', should200plainDefault);
 
-            Joi.validate(response.result, schemaHuman, function (err, value) {
-                expect(err).to.not.exist;
-                done();
-            });
+        it('should respond with 200 code with HEAD request', shouldHead200);
 
-        });
+        it('should respond with 200 code and expected schema at verbose endpoint', should200Verbose({mech:true,usage:false}));
+
+        it('should respond with 200 code and expected schema at human endpoint', should200Verbose({mech:false,usage:false}));
     });
 
 });
