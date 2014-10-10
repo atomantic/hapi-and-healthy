@@ -39,23 +39,43 @@ exports.register = function (plugin, options, next) {
                 bad: 'BAD',
                 warn: 'WARN'
             },
+            usage: true,
             version: '0.0.0'
         }, options );
 
     var getHealth = function(request, cb){
             usage.lookup(process.pid, function(err, usage) {
-               cb({
-                   health:{
-                       cpu_load: os.loadavg(),
-                       cpu_proc: err || usage.cpu,
-                       mem_free: os.freemem(),
-                       mem_free_percent: os.freemem()/os.totalmem(),
-                       mem_proc: err || usage.memory/os.totalmem(),
-                       mem_total: os.totalmem(),
-                       os_uptime: os.uptime()
-                   }
-               });
+                var health = {
+                    cpu_load: os.loadavg(),
+                    cpu_proc: err || usage.cpu,
+                    mem_free: os.freemem(),
+                    mem_free_percent: os.freemem()/os.totalmem(),
+                    mem_proc: err || usage.memory/os.totalmem(),
+                    mem_total: os.totalmem(),
+                    os_uptime: os.uptime()
+                };
+                if(!_.isUndefined(request.query.h)){
+                    // make it human friendly
+                    if(_.isNumber(health.cpu_proc))
+                        health.cpu_proc = health.cpu_proc.toFixed(2)+'%';
+                    if(_.isNumber(health.mem_proc))
+                        health.mem_proc = health.mem_proc.toFixed(2)+'%';
+
+                    health.mem_free_percent = health.mem_free_percent.toFixed(2)+'%';
+                    health.mem_free = prettyBytes(health.mem_free);
+                    health.mem_total = prettyBytes(health.mem_total);
+                    health.os_uptime = humanize((health.os_uptime*1000),{
+                       delimiter:', ',
+                       language:opt.lang
+                    });
+                }
+                cb({
+                   health: health
+                });
             });
+        },
+        getVerbose = function(request, cb){
+
         },
         buildStatus = function(request, reply){
             var etag,
@@ -114,25 +134,10 @@ exports.register = function (plugin, options, next) {
                 if(!verbose){
                     return reply(body).code(code).type(type).etag(etag);
                 }
-                // we want more info
-                getHealth(request, function(data){
-                    if(!_.isUndefined(request.query.h)){
-                        // make it human friendly
-                        data.health.cpu_proc = _.isNumber(data.health.cpu_proc) ? data.health.cpu_proc.toFixed(2)+'%' : data.health.cpu_proc;
-                        data.health.mem_proc = _.isNumber(data.health.mem_proc) ? data.health.mem_proc.toFixed(2)+'%' : data.health.mem_proc;
-                        data.health.mem_free_percent = data.health.mem_free_percent.toFixed(2)+'%';
-
-                        data.health.mem_free = prettyBytes(data.health.mem_free);
-                        data.health.mem_total = prettyBytes(data.health.mem_total);
-
-                        data.health.os_uptime = humanize((data.health.os_uptime*1000),{
-                           delimiter:', ',
-                           language:opt.lang
-                        });
-                    }
+                var fulfill = function(data){
                     responseJSON = _.merge(responseJSON, {
                         service: {
-                            custom: _.merge(data, opt.custom),
+                            custom: _.merge(data||{}, opt.custom),
                             env: opt.env,
                             id: opt.id,
                             name: opt.name,
@@ -148,7 +153,13 @@ exports.register = function (plugin, options, next) {
                     }else{
                         return reply(responseJSON).etag(etag);
                     }
-                });
+                };
+                // we want more info
+                if(opt.usage){
+                    getHealth(request, fulfill);
+                }else{
+                    fulfill();
+                }
             });
         };
 

@@ -64,6 +64,7 @@ npm test;
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
   - NOTE: eventually, we'll have more test options here
+- `usage` - (`boolean`) - show usage/health information (cpu, memory, etc). Default: true
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
 ### Example
