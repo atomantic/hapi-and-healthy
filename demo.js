@@ -41,7 +41,7 @@ server.pack.register({
                     }
                 ]
             },
-            //usage: false,
+            //usage_proc: false,
             version: pjson.version
         }
     },

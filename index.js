@@ -83,7 +83,7 @@ exports.register = function (plugin, options, next) {
                 cb({
                    health: health
                 });
-            }
+            };
             if(opt.usage_proc){
                 // query the process usage
                 usage.lookup(process.pid, returnUsage);
@@ -163,10 +163,10 @@ exports.register = function (plugin, options, next) {
                         // set it to the git commit hash
                         git.long(function(str){
                             responseJSON.service.id = str;
-                            return reply(responseJSON).etag(etag);
+                            return reply(responseJSON).code(code).type(type).etag(etag);
                         });
                     }else{
-                        return reply(responseJSON).etag(etag);
+                        return reply(responseJSON).code(code).type(type).etag(etag);
                     }
                 };
                 // we want more info
