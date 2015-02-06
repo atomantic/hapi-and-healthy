@@ -12,7 +12,7 @@ var async = require('async');
 // https://www.npmjs.org/package/git-rev
 var git = require('git-rev');
 
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
     // configuration options
     var opt = _.merge({
@@ -178,37 +178,44 @@ exports.register = function (plugin, options, next) {
             });
         };
 
-    // create an endpoint for each server
-    plugin.servers.forEach(function (server) {
+    var routeGET = {
+        method: 'GET',
+        path: opt.path,
+        config:{
+            auth:false,
+            // cache:{
+            //     expiresIn: 86400000,
+            //     privacy: 'public'
+            // },
+            tags:['api','health','status'],
+            description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
+            notes: "Returns a web service's current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately."
+        },
+        handler: buildStatus
+    };
+    var routeHEAD = {
+        method: 'HEAD',
+        path: opt.path,
+        config:{
+            auth:false,
+            tags:['api','health','status'],
+            description: "Simple HEAD check API to determine if the node is bad. Responds only with 200 or 500 HTTP response code.",
+            notes: "Retrieve a web service's health status simply via HTTP response code."
+        },
+        handler: buildStatus
+    };
 
-        plugin.route({
-            method: 'GET',
-            path: opt.path,
-            config:{
-                auth:false,
-                // cache:{
-                //     expiresIn: 86400000,
-                //     privacy: 'public'
-                // },
-                tags:['api','health','status'],
-                description: "Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.",
-                notes: "Returns a web service's current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately."
-            },
-            handler: buildStatus
+    // Hapi.js < 8 compat (plugin is invoked with server instead of plugin as first arg)
+    if(server.servers){
+        // create an endpoint for each server
+        server.servers.forEach(function (s) {
+            s.route(routeGET);
+            s.route(routeHEAD);
         });
-        plugin.route({
-            method: 'HEAD',
-            path: opt.path,
-            config:{
-                auth:false,
-                tags:['api','health','status'],
-                description: "Simple HEAD check API to determine if the node is bad. Responds only with 200 or 500 HTTP response code.",
-                notes: "Retrieve a web service's health status simply via HTTP response code."
-            },
-            handler: buildStatus
-        });
-
-    });
+    }else{
+        server.route(routeGET);
+        server.route(routeHEAD);
+    }
 
     next();
 
