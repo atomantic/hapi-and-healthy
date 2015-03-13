@@ -194,7 +194,10 @@ exports.register = function (server, options, next) {
         handler: buildStatus
     };
     var routeHEAD = {
-        method: 'HEAD',
+        // not sure the reasoning but Hapi does not allow "HEAD" method route configs...
+        // http://hapijs.com/api#route-configuration
+        // so this will catch anything but the GET request (including HEAD)
+        method: '*',
         path: opt.path,
         config:{
             auth:false,
