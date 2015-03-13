@@ -36,6 +36,10 @@ exports.register = function (server, options, next) {
             version: '0.0.0'
         }, options );
 
+    // allow custom objects to be passed by reference
+    // lest _.merge copy the data at time of passing it
+    opt.custom = options.custom||{};
+
     if(opt.usage){
         // http://nodejs.org/api/os.html
         var os = require('os');
