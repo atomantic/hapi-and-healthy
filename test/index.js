@@ -30,27 +30,27 @@ describe('Hapi-and-Healthy plugin', function() {
     var createExpectedSchema = function(conf){
 
         var healthKeys = {
-            cpu_load: conf.mech ? 
-                Joi.array().length(3).includes(Joi.number()).required() : 
+            cpu_load: conf.mech ?
+                Joi.array().length(3).includes(Joi.number()).required() :
                 Joi.array().length(3).includes(Joi.number()).required(),
-            mem_free: conf.mech ? 
-                Joi.number().integer().required() : 
-                Joi.string().required(),
-            mem_free_percent: conf.mech ? 
-                Joi.number().min(0).max(1).required() :
-                Joi.string().required(),
-            mem_total: conf.mech ? 
+            mem_free: conf.mech ?
                 Joi.number().integer().required() :
                 Joi.string().required(),
-            os_uptime: conf.mech ? 
+            mem_free_percent: conf.mech ?
+                Joi.number().min(0).max(1).required() :
+                Joi.string().required(),
+            mem_total: conf.mech ?
+                Joi.number().integer().required() :
+                Joi.string().required(),
+            os_uptime: conf.mech ?
                 Joi.number().required() :
                 Joi.string().required()
         };
         if(conf.usage){
-            healthKeys.cpu_proc = conf.mech ? 
-                Joi.number().min(0).max(101).required() : 
+            healthKeys.cpu_proc = conf.mech ?
+                Joi.number().min(0).max(101).required() :
                 Joi.string().required();
-            healthKeys.mem_proc = conf.mech ? 
+            healthKeys.mem_proc = conf.mech ?
                 Joi.number().min(0).max(1).required() :
                 Joi.string().required();
         }
@@ -73,7 +73,7 @@ describe('Hapi-and-Healthy plugin', function() {
     var pluginConfig = {
         plugin: require('../'),
         options: {
-            env: "FOO",
+            env: 'FOO',
             id: '1',
             name: pjson.name,
             test:{
@@ -81,6 +81,9 @@ describe('Hapi-and-Healthy plugin', function() {
                     return cb(null,'memcache all good');
                 },function(cb){
                     return cb(null,'checksum good');
+                }],
+                features:[function(cb){
+                    return cb(null, 'some feature is available');
                 }]
             },
             state:{
@@ -151,7 +154,7 @@ describe('Hapi-and-Healthy plugin', function() {
                 expect(response.result.service.name).to.equal(pjson.name);
                 expect(response.result.service.version).to.equal(pjson.version);
 
-                Joi.validate(response.result, 
+                Joi.validate(response.result,
                     createExpectedSchema(conf),
                     function (err, value) {
                         expect(err).to.not.exist;
@@ -188,12 +191,12 @@ describe('Hapi-and-Healthy plugin', function() {
 
 
     describe('Restricted Configuration', function() {
-        
+
         it('should load restricted plugin succesfully', function(done){
 
             server.stop(function () {
                 server = new Hapi.Server();
-                
+
                 // remove usage data
                 pluginConfig.options.usage = false;
                 server.pack.register(pluginConfig,

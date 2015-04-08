@@ -1,41 +1,14 @@
-// http://lodash.com/
-var _ = require('lodash');
-// https://github.com/atomantic/undermore
-_.mixin(require('undermore'));
-_.mixin({
-    isotime:function(){
-        return (new Date()).toISOString();
-    }
-});
+var _ = require('./lib/_');
 // https://www.npmjs.org/package/async
 var async = require('async');
+var config = require('./lib/config');
 // https://www.npmjs.org/package/git-rev
 var git = require('git-rev');
 
 exports.register = function (server, options, next) {
 
-    // configuration options
-    var opt = _.merge({
-            custom: {},
-            env: 'DEV',
-            id: 'git',
-            lang: 'en',
-            test:{
-                node:[function(cb){cb(false,'all good');}],
-                features:[function(cb){cb(false,'all good');}]
-            },
-            defaultContentType: 'text/plain',
-            name: 'my_service',
-            path: '/service-status',
-            state:{
-                good: 'GOOD',
-                bad: 'BAD',
-                warn: 'WARN'
-            },
-            usage: true,
-            usage_proc: true,
-            version: '0.0.0'
-        }, options );
+    // merge custom options over default config
+    var opt = _.merge( config, options );
 
     // allow custom objects to be passed by reference
     // lest _.merge copy the data at time of passing it
