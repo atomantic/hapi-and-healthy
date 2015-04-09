@@ -4,8 +4,6 @@ var Joi = require('joi');
 
 // test shortcuts
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 // lab.expect uses chai: http://chaijs.com/
@@ -21,11 +19,11 @@ describe('Hapi-and-Healthy plugin', function() {
         message: Joi.array(),
         published: Joi.string()
     });
-    var schemaBasic = Joi.object().keys({
-        service: Joi.object().keys({
-            status: schemaStatus
-        })
-    });
+    // var schemaBasic = Joi.object().keys({
+    //     service: Joi.object().keys({
+    //         status: schemaStatus
+    //     })
+    // });
 
     var createExpectedSchema = function(conf){
 
@@ -99,16 +97,15 @@ describe('Hapi-and-Healthy plugin', function() {
     var shouldRegisterRoutes = function(done) {
         var table = server.table();
 
-        expect(table).to.have.length(2);
+        expect(table).to.have.length(1);
         expect(table[0].path).to.equal('/service-status');
-        expect(table[1].path).to.equal('/service-status');
 
         done();
     };
     var should200plainExplicit = function(done){
         server.inject({
-            method: "GET",
-            url: "/service-status",
+            method: 'GET',
+            url: '/service-status',
             headers: {
                 accept: 'text/plain'
             }
@@ -121,8 +118,8 @@ describe('Hapi-and-Healthy plugin', function() {
     };
     var should200plainDefault = function(done){
         server.inject({
-            method: "GET",
-            url: "/service-status"
+            method: 'GET',
+            url: '/service-status'
         }, function(response) {
             expect(response.statusCode).to.equal(200);
             expect(response.result).to.equal('HEALTHY');
@@ -132,8 +129,8 @@ describe('Hapi-and-Healthy plugin', function() {
     };
     var shouldHead200 = function(done){
         server.inject({
-            method: "HEAD",
-            url: "/service-status"
+            method: 'HEAD',
+            url: '/service-status'
         }, function(response) {
             expect(response.statusCode).to.equal(200);
             done();
@@ -143,8 +140,8 @@ describe('Hapi-and-Healthy plugin', function() {
 
         return function(done){
             server.inject({
-                method: "GET",
-                url: "/service-status?v" + (conf.mech ? '' : '&h')
+                method: 'GET',
+                url: '/service-status?v' + (conf.mech ? '' : '&h')
             }, function(response) {
 
                 expect(response.statusCode).to.equal(200);
@@ -156,7 +153,7 @@ describe('Hapi-and-Healthy plugin', function() {
 
                 Joi.validate(response.result,
                     createExpectedSchema(conf),
-                    function (err, value) {
+                    function (err /*, value*/ ) {
                         expect(err).to.not.exist;
                         done();
                     }
