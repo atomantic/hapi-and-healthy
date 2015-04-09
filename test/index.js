@@ -10,6 +10,8 @@ var it = lab.it;
 var expect = Lab.expect;
 var pjson = require('../package.json');
 
+var _ = require('../lib/_');
+
 describe('Hapi-and-Healthy plugin', function() {
 
     var server = new Hapi.Server();
@@ -94,6 +96,23 @@ describe('Hapi-and-Healthy plugin', function() {
         }
     };
 
+    var pluginConfigFatal = _.cloneDeep(pluginConfig);
+    pluginConfigFatal.options.test.node = [
+        function(cb){
+            return cb(false,'memcache is dead');
+        },
+        function(cb){
+            return cb(null,'checksum good');
+        }
+    ];
+
+    var pluginConfigWarn = _.cloneDeep(pluginConfig);
+    pluginConfigWarn.options.test.features = [
+        function(cb){
+            return cb(false, 'some feature or dependency is broken');
+        }
+    ];
+
     var shouldRegisterRoutes = function(done) {
         var table = server.table();
 
@@ -116,6 +135,20 @@ describe('Hapi-and-Healthy plugin', function() {
             done();
         });
     };
+
+    var should500plainExplicit = function(done){
+        server.inject({
+            method: 'GET',
+            url: '/service-status',
+            headers: {
+                accept: 'text/plain'
+            }
+        }, function(response) {
+            expect(response.statusCode).to.equal(500);
+            expect(response.result).to.equal('FATAL');
+            done();
+        });
+    };
     var should200plainDefault = function(done){
         server.inject({
             method: 'GET',
@@ -123,6 +156,18 @@ describe('Hapi-and-Healthy plugin', function() {
         }, function(response) {
             expect(response.statusCode).to.equal(200);
             expect(response.result).to.equal('HEALTHY');
+
+            done();
+        });
+    };
+
+    var should500plainDefault = function(done){
+        server.inject({
+            method: 'GET',
+            url: '/service-status'
+        }, function(response) {
+            expect(response.statusCode).to.equal(500);
+            expect(response.result).to.equal('FATAL');
 
             done();
         });
@@ -136,6 +181,16 @@ describe('Hapi-and-Healthy plugin', function() {
             done();
         });
     };
+
+    var shouldHead500 = function(done){
+        server.inject({
+            method: 'HEAD',
+            url: '/service-status'
+        }, function(response) {
+            expect(response.statusCode).to.equal(500);
+            done();
+        });
+    };
     var should200Verbose = function(conf){
 
         return function(done){
@@ -145,6 +200,33 @@ describe('Hapi-and-Healthy plugin', function() {
             }, function(response) {
 
                 expect(response.statusCode).to.equal(200);
+                expect(response.result.service).to.be.instanceof(Object);
+                expect(response.result.service.env).to.equal('FOO');
+                expect(response.result.service.id).to.equal('1');
+                expect(response.result.service.name).to.equal(pjson.name);
+                expect(response.result.service.version).to.equal(pjson.version);
+
+                Joi.validate(response.result,
+                    createExpectedSchema(conf),
+                    function (err /*, value*/ ) {
+                        expect(err).to.not.exist;
+                        done();
+                    }
+                );
+
+            });
+        };
+    };
+
+    var should500Verbose = function(conf){
+
+        return function(done){
+            server.inject({
+                method: 'GET',
+                url: '/service-status?v' + (conf.mech ? '' : '&h')
+            }, function(response) {
+
+                expect(response.statusCode).to.equal(500);
                 expect(response.result.service).to.be.instanceof(Object);
                 expect(response.result.service.env).to.equal('FOO');
                 expect(response.result.service.id).to.equal('1');
@@ -185,6 +267,31 @@ describe('Hapi-and-Healthy plugin', function() {
 
         it('should respond with 200 code and expected schema at human endpoint', should200Verbose({mech:false,usage:true}));
     });
+
+
+    describe('Basic Configuration (with expected failures)', function() {
+
+        it('should load plugin succesfully', function(done){
+            server.pack.register(pluginConfig,
+            function(err) {
+                expect(err).to.equal(undefined);
+                done();
+            });
+        });
+
+        it('should register arbitrary routes', shouldRegisterRoutes);
+
+        it('should respond with 200 code and text/plain explicitly at non-verbose endpoint', should200plainExplicit);
+
+        it('should respond with 200 code and text/plain by default at non-verbose endpoint', should200plainDefault);
+
+        it('should respond with 200 code with HEAD request', shouldHead200);
+
+        it('should respond with 200 code and expected schema at verbose endpoint', should200Verbose({mech:true,usage:true}));
+
+        it('should respond with 200 code and expected schema at human endpoint', should200Verbose({mech:false,usage:true}));
+    });
+
 
 
     describe('Restricted Configuration', function() {
