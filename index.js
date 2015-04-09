@@ -1,9 +1,5 @@
 var _ = require('./lib/_');
-// https://www.npmjs.org/package/async
-var async = require('async');
 var config = require('./lib/config');
-// https://www.npmjs.org/package/git-rev
-var git = require('git-rev');
 
 exports.register = function (server, options, next) {
 
@@ -14,120 +10,16 @@ exports.register = function (server, options, next) {
     // lest _.merge copy the data at time of passing it
     opt.custom = options.custom||{};
 
-    if(opt.usage){
-        var systemStats = require('./lib/systemStats')(opt);
-    }
-
-    var buildStatus = function(request, reply){
-            var etag,
-                accept = request.headers.accept,
-                type = opt.defaultContentType,
-                plain = 'text/plain',
-                json = 'application/json',
-                match = request.headers['if-none-match'],
-                verbose = !_.isUndefined(request.query.v),
-                responseJSON = {
-                  service: {
-                    status: {
-                    }
-                  }
-                };
-            if(verbose){
-                // force json
-                type = json;
-            }else{
-                if(!accept || accept.indexOf('*/*')!==-1){
-                    type = opt.defaultContentType;
-                }else if(accept.indexOf(json)!==-1){
-                    type = json;
-                }else if(accept.indexOf(plain)!==-1){
-                    type = plain;
-                }
-            }
-
-            // if any one of our node tests fail, this node is bad
-            // and should immediately be removed from rotation
-            // run tests in parallel async
-            async.parallel(opt.test.node, function(err, data){
-                // if any of the tests return an err, it will show up here immediately
-                var state = err ? opt.state.bad : opt.state.good;
-                // we are only going to return 200/500
-                var code = err ? 500 : 200;
-                var body = state;
-
-                if(type!==plain){
-                    responseJSON.service.status.message = data;
-                    responseJSON.service.status.state = state;
-                    type = 'application/json';
-                    body = responseJSON;
-                    etag = _.base64_encode(JSON.stringify(body));
-                    // now add published date
-                    body.service.status.published = _.isotime();
-                }else{
-                    etag = _.base64_encode(body);
-                }
-
-                // support for If-None-Match: {etag}
-                if(match && match===etag){
-                    return reply().code(304);
-                }
-
-                if(!verbose){
-                    return reply(body).code(code).type(type).etag(etag);
-                }
-                var fulfill = function(data){
-                    responseJSON = _.merge(responseJSON, {
-                        service: {
-                            custom: _.merge(data||{}, opt.custom),
-                            env: opt.env,
-                            id: opt.id,
-                            name: opt.name,
-                            version: opt.version
-                        }
-                    });
-                    if(responseJSON.service.id==='git'){
-                        // set it to the git commit hash
-                        git.long(function(str){
-                            responseJSON.service.id = str;
-                            return reply(responseJSON).code(code).type(type).etag(etag);
-                        });
-                    }else{
-                        return reply(responseJSON).code(code).type(type).etag(etag);
-                    }
-                };
-                // we want more info
-                if(opt.usage){
-                    systemStats.getUsage(request, fulfill);
-                }else{
-                    fulfill();
-                }
-            });
-        };
-
-    var routeGET = {
-        method: 'GET',
-        path: opt.path,
-        config:{
-            auth:false,
-            // cache:{
-            //     expiresIn: 86400000,
-            //     privacy: 'public'
-            // },
-            tags:['api','health','status'],
-            description: 'Simple LTM monitor API to determine if the node is bad. Responds with text/plain and 200 or 500 code.',
-            notes: 'Returns a web service\'s current health status state. Status State String: HEALTHY, WARN, FATAL. WARN is a (graceful) degraded state - service only provides core, required functionality when in this state. If LTM detects non-200 response or FATAL, node should be pulled from rotation immediately.'
-        },
-        handler: buildStatus
-    };
+    var routeConfig = require('./lib/route')(opt);
 
     // Hapi.js < 8 compat (plugin is invoked with server instead of plugin as first arg)
     if(server.servers){
         // create an endpoint for each server
         server.servers.forEach(function (s) {
-            s.route(routeGET);
+            s.route(routeConfig);
         });
     }else{
-        server.route(routeGET);
+        server.route(routeConfig);
     }
 
     next();
