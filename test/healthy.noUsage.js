@@ -19,6 +19,7 @@ describe('Hapi-and-Healthy plugin: '+setName, function() {
 
     var testPluginConfig = _.cloneDeep(pluginConfig);
 
+    testPluginConfig.options.usage = false;
     testPluginConfig.options.usage_proc = false;
 
     var code = 200;

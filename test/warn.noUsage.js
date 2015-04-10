@@ -26,6 +26,7 @@ describe('Hapi-and-Healthy plugin: '+setName, function() {
         }
     ];
     testPluginConfig.options.usage = false;
+
     var code = 200;
     var state = testPluginConfig.options.state.warn;
     // Some day, I'll figure out how to DRY this out into a module
