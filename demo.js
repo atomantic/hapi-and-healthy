@@ -32,12 +32,18 @@ server.pack.register({
                 // should be pulled out of rotation
                 node:[
                     function(cb){
-                        // todo: test memcached
-                        return cb(false,'memcached is running');
-                    },
-                    function(cb){
-                        // todo: test checksum
+                        // todo: test git commit hash / checksum against memcached manifest
+                        // to see if this node is in compliance with the release version
                         return cb(false,'code checksum matches manifest');
+                    }
+                ],
+                features:[
+                    function(cb){
+                        // TODO: query a status report of a cron smoke test or
+                        // query memcached/redis, etc for logs of failures within a given timeframe
+                        // if we hit a threshold, return cb(true, message), which will throw this
+                        // node into WARN state
+                        return cb(false,'some feature or API endpoint passed tests');
                     }
                 ]
             },
@@ -45,7 +51,7 @@ server.pack.register({
             version: pjson.version
         }
     },
-    function(err, a){
+    function(err){
         if (err) {
             throw err;
         }
