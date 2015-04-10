@@ -16,7 +16,19 @@ The primary consumer is a Local Traffic Manager (LTM), which load balances and a
 
 > NOTE: failing dependecy services should never cause your node to be marked bad. Your tests should only validate that your node is configured and running correctly (otherwise, an LTM would remove a good node out of the pool only because another service went down).
 
-Additionally, query flags are provided for verbose output (`?v`) to machines and humans. This API will report cpu and memory load for the system and for the hapi server process itself. The human friendly flag (`?v&h`) converts values from bytes to KB/MB/GB and usage to percentage of the system rather than flat values
+A secondary consumer is a DevOps maintainer who wants to see the status of the service and get more detailed information on what's going on with it.
+
+Examples:
+
+- what version/checksum/`git rev-parse HEAD` is actually running (does it match the deployment manifest)?
+- what environment is the node configured to run (DEV, QA, STAGE, PROD, etc)?
+- what remote service environments is it setup to use (DEV, QA, STAGE, PROD, etc)?
+- what  what memcached servers are loaded in the pool?
+- why is it marked as good, bad or in a warning state (useful messages)?
+- how does the CPU/memory look on this node?
+- etc...
+
+Query flags are available for verbose output (`?v`) to machines and humans. This API will report cpu and memory load for the system and for the hapi server process itself. The human friendly flag (`?v&h`) converts values from bytes to KB/MB/GB and usage to percentage of the system rather than flat values
 
 
 ## Installation:
@@ -97,48 +109,47 @@ server.pack.register({
       node:[
         // TEST 1: validate the version of this codebase matches release for this ENV
         function(cb){
-            // check the release version against current codebase.
-            // At deploy time, we update memcache with the release version for this env
-            // using a deploy script (stored under 'app_version_'+env)
-            memcached.get('app_version_'+env,function(err,data){
-                if(err) return cb(true, err);
+          // check the release version against current codebase.
+          // At deploy time, we update memcache with the release version for this env
+          // using a deploy script (stored under 'app_version_'+env)
+          memcached.get('app_version_'+env,function(err,data){
+            if(err) return cb(true, err);
 
-                if(data!==pjson.version){
-                    // this codebase does not match our release manifest
-                    // don't allow it in rotation
-                    return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version);
-                }
-                // ok, all good on this check
-                return cb(null, 'matches expected version ('+pjson.version+')');
-            });
-
+            if(data!==pjson.version){
+              // this codebase does not match our release manifest
+              // don't allow it in rotation
+              return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version);
+            }
+            // ok, all good on this check
+            return cb(null, 'matches expected version ('+pjson.version+')');
+          });
         }
       ],
       features:[
-          function(cb){
-                // let's say we have a content directory that we use a tool like chef to
-                // dump onto the running node from a github repo
-                // this is a seperate dependency from the node
-                // whenever the app loads a new hash of the content
-                // (via fs.watch on the .git repo for the content directory)
-                // it updates memcached with the new hash for content.
-                // Our status page will check memcached from our running app's idea of the current
-                // content hash. If it's not a match then this node is out of date
-                // and we want to flag it in a WARN state (but not pull the node out of rotation).
-                memcached.get('content_hash',function(err, data){
-                    // console.log('memcached found', err, data);
-                    if(err){
-                        return cb(true, 'memcached error: '+err);
-                    }
-                    if(data!==content.hash){
-                        // latest memcached version is different from this node's
-                        // idea of what the content version is
-                        // which means this node is behind other nodes
-                        return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)');
-                    }
-                    return cb(null, 'content matches other nodes');
-                });
+        function(cb){
+          // let's say we have a content directory that we use a tool like chef to
+          // dump onto the running node from a github repo
+          // this is a seperate dependency from the node
+          // whenever the app loads a new hash of the content
+          // (via fs.watch on the .git repo for the content directory)
+          // it updates memcached with the new hash for content.
+          // Our status page will check memcached from our running app's idea of the current
+          // content hash. If it's not a match then this node is out of date
+          // and we want to flag it in a WARN state (but not pull the node out of rotation).
+          memcached.get('content_hash',function(err, data){
+            // console.log('memcached found', err, data);
+            if(err){
+                return cb(true, 'memcached error: '+err);
             }
+            if(data!==content.hash){
+              // latest memcached version is different from this node's
+              // idea of what the content version is
+              // which means this node is behind other nodes
+              return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)');
+            }
+            return cb(null, 'content matches other nodes');
+          });
+        }
       ]
     },
     version: pjson.version
