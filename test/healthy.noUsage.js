@@ -11,24 +11,18 @@ var _ = require('../lib/_');
 var common = require('./lib/common');
 var pluginConfig = require('./lib/config');
 
+
+
 var setName = _.last(__filename.split('/')).replace('.js','');
 
 describe('Hapi-and-Healthy plugin: '+setName, function() {
 
     var testPluginConfig = _.cloneDeep(pluginConfig);
-    testPluginConfig.options.test.node = [
-        function(cb){
-            return cb(true,'memcache is dead');
-        },
-        function(cb){
-            return cb(null,'checksum good');
-        }
-    ];
 
-    var code = 500;
-    var state = testPluginConfig.options.state.bad;
+    testPluginConfig.options.usage_proc = false;
 
-
+    var code = 200;
+    var state = testPluginConfig.options.state.good;
     // Some day, I'll figure out how to DRY this out into a module
     // but for now, lab seems to require that these all exist directly in the describe
     // so a lot of copy/paste :(
@@ -49,6 +43,10 @@ describe('Hapi-and-Healthy plugin: '+setName, function() {
             expect(err).to.equal(undefined);
             done();
         });
+    });
+
+    it('should register arbitrary routes', function(done){
+        common.shouldRegisterRoutes(server, done);
     });
 
     it('should register arbitrary routes', function(done){

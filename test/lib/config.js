@@ -13,6 +13,8 @@ module.exports = {
             }],
             features:[function(cb){
                 return cb(null, 'some feature is available');
+            },function(cb){
+                return cb(null, 'another feature is available');
             }]
         },
         state:{
@@ -21,6 +23,8 @@ module.exports = {
             warn: 'WARN'
         },
         path: '/service-status',
-        version: pjson.version
+        version: pjson.version,
+        usage:true,
+        usage_proc:true
     }
 };

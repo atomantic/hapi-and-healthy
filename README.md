@@ -85,11 +85,16 @@ var os = require('os');
 var Memcached = require('memcached');
 var memcached = new Memcached('localhost:11211');
 
+// example app-specific module for feature testing
+// we have a content engine for keeping the site content up-to-date (see feature tests below)
+var content = require('./lib/content');
+
 // Register the plugin with custom config
 server.pack.register({
   plugin: require("hapi-and-healthy"),
   options: {
     custom: {
+        // let's just say we want to keep an eye on the memcached pool
         memcached: memcached.servers
     },
     env: env,
@@ -116,26 +121,33 @@ server.pack.register({
                 return cb(null, 'matches expected version ('+pjson.version+')');
             });
 
-        },
-        // TEST 2: make sure we can write and read to memcache
-        function(cb){
-            // store new unique value under hostname (unique to this node)
-            var uuid = _.uuid(), // using undermore uuid
-                name = os.hostname();
-            memcached.set(name, uuid, 60, function(err,data){
-                if(err) return cb(true, err);
-
-                memcached.get(name,function(err,data){
-                    if(err) return cb(true, err);
-
-                    if(data!==uuid){
-                        return cb(true, 'memcache write/read fail. Wrote '+uuid+' but read '+data);
-                    }
-                    return cb(null, 'memcached running well');
-                });
-            });
-
         }
+      ],
+      features:[
+          function(cb){
+                // let's say we have a content directory that we use a tool like chef to
+                // dump onto the running node from a github repo
+                // this is a seperate dependency from the node
+                // whenever the app loads a new hash of the content
+                // (via fs.watch on the .git repo for the content directory)
+                // it updates memcached with the new hash for content.
+                // Our status page will check memcached from our running app's idea of the current
+                // content hash. If it's not a match then this node is out of date
+                // and we want to flag it in a WARN state (but not pull the node out of rotation).
+                memcached.get('content_hash',function(err, data){
+                    // console.log('memcached found', err, data);
+                    if(err){
+                        return cb(true, 'memcached error: '+err);
+                    }
+                    if(data!==content.hash){
+                        // latest memcached version is different from this node's
+                        // idea of what the content version is
+                        // which means this node is behind other nodes
+                        return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)');
+                    }
+                    return cb(null, 'content matches other nodes');
+                });
+            }
       ]
     },
     version: pjson.version
@@ -190,6 +202,22 @@ Connection: keep-alive
 GOOD%
 ```
 
+OR, if the node passes all the LTM tests supplied in `options.test.node`
+BUT, it did not pass all of the feature tests supplied in `options.test.features`
+(still returns 200 to keep node in rotation, but flags this node in WARN state)
+```
+⇒  curl -i -H "Accept: text/plain" http://127.0.0.1:3192/service-status
+HTTP/1.1 200 OK
+content-type: text/plain; charset=utf-8
+content-length: 4
+cache-control: no-cache
+accept-ranges: bytes
+Date: Wed, 03 Sep 2014 23:16:33 GMT
+Connection: keep-alive
+
+WARN%
+```
+
 ### `/service-status?v`
 runs full, verbose suite of health checks and returns machine friendly output
 
@@ -218,8 +246,8 @@ runs full, verbose suite of health checks and returns machine friendly output
     "status": {
       "state": "GOOD",
       "message": [
-        "memcache is good",
-        "checksum matches manifest"
+        "checksum matches manifest",
+        "content matches other nodes"
       ],
       "published": "2014-09-24T03:27:59.575Z"
     }
@@ -257,8 +285,8 @@ runs full, verbose suite of health checks and returns human friendly output
     "status": {
       "state": "GOOD",
       "message": [
-        "memcache is good",
-        "checksum matches manifest"
+        "checksum matches manifest",
+        "content matches other nodes"
       ],
       "published": "2014-09-24T03:27:59.575Z"
     }

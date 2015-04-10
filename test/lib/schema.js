@@ -14,29 +14,27 @@ var schemaStatus = Joi.object().keys({
 var schema = {
     createExpectedSchema: function(conf){
         var healthKeys = {
-            cpu_load: conf.mech ?
-                Joi.array().length(3).includes(Joi.number()).required() :
-                Joi.array().length(3).includes(Joi.number()).required(),
-            mem_free: conf.mech ?
-                Joi.number().integer().required() :
-                Joi.string().required(),
-            mem_free_percent: conf.mech ?
-                Joi.number().min(0).max(1).required() :
-                Joi.string().required(),
-            mem_total: conf.mech ?
-                Joi.number().integer().required() :
-                Joi.string().required(),
-            os_uptime: conf.mech ?
-                Joi.number().required() :
-                Joi.string().required()
+            cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+            mem_free: conf.human ?
+                Joi.string().required() :
+                Joi.number().integer().required(),
+            mem_free_percent: conf.human ?
+                Joi.string().required() :
+                Joi.number().min(0).max(1).required(),
+            mem_total: conf.human ?
+                Joi.string().required() :
+                Joi.number().integer().required(),
+            os_uptime: conf.human ?
+                Joi.string().required() :
+                Joi.number().required()
         };
-        if(conf.usage){
-            healthKeys.cpu_proc = conf.mech ?
-                Joi.number().min(0).max(101).required() :
-                Joi.string().required();
-            healthKeys.mem_proc = conf.mech ?
-                Joi.number().min(0).max(1).required() :
-                Joi.string().required();
+        if(conf.usage_proc){
+            healthKeys.cpu_proc = conf.human ?
+                Joi.string().required() :
+                Joi.number().min(0).max(101).required();
+            healthKeys.mem_proc = conf.human ?
+                Joi.string().required() :
+                Joi.number().min(0).max(1).required();
         }
 
         return Joi.object().keys({
@@ -53,9 +51,5 @@ var schema = {
         });
     }
 };
-schema.basic = schema.createExpectedSchema({mech:false,usage:false});
-schema.mech = schema.createExpectedSchema({mech:true,usage:false});
-schema.mechUsage = schema.createExpectedSchema({mech:true,usage:true});
-schema.usage = schema.createExpectedSchema({mech:false,usage:true});
 
 module.exports = schema;

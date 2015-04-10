@@ -12,19 +12,28 @@ var common = require('./lib/common');
 var pluginConfig = require('./lib/config');
 
 
-var pluginConfigFatal = _.cloneDeep(pluginConfig);
-pluginConfigFatal.options.test.node = [
-    function(cb){
-        return cb(true,'memcache is dead');
-    },
-    function(cb){
-        return cb(null,'checksum good');
-    }
-];
-pluginConfigFatal.options.usage = false;
 
-describe('Hapi-and-Healthy plugin: FATAL state, no usage', function() {
 
+var setName = _.last(__filename.split('/')).replace('.js','');
+
+describe('Hapi-and-Healthy plugin: '+setName, function() {
+
+    var testPluginConfig = _.cloneDeep(pluginConfig);
+    testPluginConfig.options.test.node = [
+        function(cb){
+            return cb(true,'memcache is dead');
+        },
+        function(cb){
+            return cb(null,'checksum good');
+        }
+    ];
+    testPluginConfig.options.usage = false;
+
+    var code = 500;
+    var state = testPluginConfig.options.state.bad;
+    // Some day, I'll figure out how to DRY this out into a module
+    // but for now, lab seems to require that these all exist directly in the describe
+    // so a lot of copy/paste :(
     var server;
 
     before('start server', function(done){
@@ -37,7 +46,7 @@ describe('Hapi-and-Healthy plugin: FATAL state, no usage', function() {
     });
 
     it('should load plugin succesfully', function(done){
-        server.pack.register(pluginConfigFatal,
+        server.pack.register(testPluginConfig,
         function(err) {
             expect(err).to.equal(undefined);
             done();
@@ -48,19 +57,35 @@ describe('Hapi-and-Healthy plugin: FATAL state, no usage', function() {
         common.shouldRegisterRoutes(server, done);
     });
 
-    it('should respond with 500 code and text/plain explicitly at non-verbose endpoint', function(done){
-        common.should500plainExplicit('fatal.noUsage.3',server, done);
+    it('should register arbitrary routes', function(done){
+        common.shouldRegisterRoutes(server, done);
     });
 
-    it('should respond with 500 code and text/plain by default at non-verbose endpoint', function(done){
-        common.should500plainDefault('fatal.noUsage.4', server, done);
+    it('should respond '+code+' code and text/plain explicitly at non-verbose endpoint', function(done){
+        common.shouldPlainExplicit(setName, server, code, state, done);
     });
 
-    it('should respond with 500 code with HEAD request', function(done){
-        common.shouldHead500('fatal.noUsage.5',server, done);
+    it('should respond '+code+' code and text/plain by default at non-verbose endpoint', function(done){
+        common.shouldPlainDefault(setName, server, code, state, done);
     });
 
-    it('should respond with 500 code and expected schema at verbose endpoint', function(done){
-        common.should500Verbose('fatal.noUsage.6', server, {mech:true,usage:true}, done);
+    it('should respond '+code+' code with HEAD request', function(done){
+        common.shouldHead(setName,server, code, state, done);
+    });
+
+    it('should respond '+code+' code and expected output with verbose machine friendly', function(done){
+        common.shouldVerbose(setName, server, {
+            human:false,
+            usage:testPluginConfig.options.usage,
+            usage_proc:testPluginConfig.usage_proc
+        }, code, state, done);
+    });
+
+    it('should respond '+code+' code and expected output with verbose human friendly', function(done){
+        common.shouldVerbose(setName, server, {
+            human:true,
+            usage:testPluginConfig.options.usage,
+            usage_proc:testPluginConfig.options.usage_proc
+        }, code, state, done);
     });
 });

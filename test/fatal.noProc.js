@@ -2,14 +2,15 @@ var Lab = require('lab');
 var Hapi = require('hapi');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
+var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var it = lab.it;
 var expect = Lab.expect;
 
 var _ = require('../lib/_');
 var common = require('./lib/common');
 var pluginConfig = require('./lib/config');
+
 
 var setName = _.last(__filename.split('/')).replace('.js','');
 
@@ -24,7 +25,7 @@ describe('Hapi-and-Healthy plugin: '+setName, function() {
             return cb(null,'checksum good');
         }
     ];
-
+    testPluginConfig.options.usage_proc = false;
     var code = 500;
     var state = testPluginConfig.options.state.bad;
 
@@ -49,6 +50,10 @@ describe('Hapi-and-Healthy plugin: '+setName, function() {
             expect(err).to.equal(undefined);
             done();
         });
+    });
+
+    it('should register arbitrary routes', function(done){
+        common.shouldRegisterRoutes(server, done);
     });
 
     it('should register arbitrary routes', function(done){
