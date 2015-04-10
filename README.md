@@ -13,19 +13,11 @@ This [Hapi.js](https://www.npmjs.org/package/hapi) plugin provides a configurabl
 
 The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the test.node array (in config), which will run in parallel and report basic health status for your node. Keep in mind that an LTM will hit this API about ~1/sec so the test functions should run really fast. Caching policy and what those tests actual are is entirely up to the application :)
 
-    NOTE: failing dependecy services should never cause your node to be marked bad. Your tests should only validate that your node is configured and running correctly (otherwise, an LTM would remove a good node out of the pool only because another service went down).
+
+> NOTE: failing dependecy services should never cause your node to be marked bad. Your tests should only validate that your node is configured and running correctly (otherwise, an LTM would remove a good node out of the pool only because another service went down).
 
 Additionally, query flags are provided for verbose output (`?v`) to machines and humans. This API will report cpu and memory load for the system and for the hapi server process itself. The human friendly flag (`?v&h`) converts values from bytes to KB/MB/GB and usage to percentage of the system rather than flat values
 
-
-## NOTE:
-v2.0.0 breaks backward compatibility in many ways:
-- only one endpoint now
-- health information is put into a server.custom payload (only in verbose mode with ?v query)
-- lots of new config options
-- now returning `git rev-parse HEAD` of main project as `id` in verbose body
-- basically just look at the new spec (big changes)
-- more docs to come as I flush this out for my service :)
 
 ## Installation:
 
@@ -42,13 +34,10 @@ gulp;
 ```
 
 ## Tests:
-```
-git clone git@github.com:atomantic/hapi-and-healthy.git
-cd hapi-and-healthy;
-npm install;
-npm test;
-```
 
+This project now has 71 tests!
+You can run them with `gulp test` or `npm test`
+![](https://raw.githubusercontent.com/atomantic/hapi-and-healthy/master/docs/tests.png)
 
 ## Configuration Options
 
@@ -60,12 +49,14 @@ npm test;
 - `lang` - (`string`) Default 'en' a language override for the human output health data. This endpoint uses the [Humanize Duration package](https://www.npmjs.org/package/humanize-duration) so any valid language override for that library will be valid here (`fr`, `de`, `ko`, etc)
 - `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
 - `path` - (`string`) An override path for the default `'/service-status'` endpoint
-- `test.ltm` - (`array`) A set of async functions to run for testing your node health
+- `test.node` - (`array`) A set of async functions to run for testing your node health
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
-  - NOTE: eventually, we'll have more test options here
+- `test.features` - (`array`) A set of async functions to run for testing optional features and dependencies. Ideally this would be a query on a file dump of a smoke test that gets run periodically to test each of the API endpoints or features of your service. It could also be a check to memcached for logs of known errors in the system (counter of unhandledException, cached by API path or flow, etc).
+  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+  - `message` is an optional mixed value (json or string) that will give more info about that status
 - `usage` - (`boolean`) - show usage/health information (cpu, memory, etc). Default: true
-- `usage_proc` - (`boolean`) - show process usage/health information (cpu_proc, mem_proc, etc). Default: true (only valid as true in conjunction with usage:true)
+- `usage_proc` - (`boolean`) - show process usage/health information (cpu_proc, mem_proc, etc). Default: true (only valid as true in conjunction with usage:true). This flag was added as a way to allow turning off the inclusion of the npm `usage` module, which failed to work on some of the OS containers we tried.
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
 ### Example
@@ -293,3 +284,14 @@ runs full, verbose suite of health checks and returns human friendly output
   }
 }
 ```
+
+## History
+
+3.4.0 - Addition of WARN state handling and running of options.tests.features
+2.0.0 - breaks backward compatibility in many ways:
+    - only one endpoint now
+    - health information is put into a server.custom payload (only in verbose mode with ?v query)
+    - lots of new config options
+    - now returning `git rev-parse HEAD` of main project as `id` in verbose body
+    - basically just look at the new spec (big changes)
+    - more docs to come as I flush this out for my service :)
