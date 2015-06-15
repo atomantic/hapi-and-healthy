@@ -12,23 +12,19 @@ var schemaStatus = Joi.object().keys({
 // });
 
 var schema = {
-    createExpectedSchema: function(conf){
+    createExpectedSchema: function (conf) {
         var healthKeys = {
             cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
             mem_free: conf.human ?
-                Joi.string().required() :
-                Joi.number().integer().required(),
+                Joi.string().required() : Joi.number().integer().required(),
             mem_free_percent: conf.human ?
-                Joi.string().required() :
-                Joi.number().min(0).max(1).required(),
+                Joi.string().required() : Joi.number().min(0).max(1).required(),
             mem_total: conf.human ?
-                Joi.string().required() :
-                Joi.number().integer().required(),
+                Joi.string().required() : Joi.number().integer().required(),
             os_uptime: conf.human ?
-                Joi.string().required() :
-                Joi.number().required()
+                Joi.string().required() : Joi.number().required()
         };
-        if(conf.usage_proc){
+        if (conf.usage_proc) {
             healthKeys.cpu_proc = conf.human ?
                 Joi.string().required() :
                 Joi.number().min(0).max(101).required();

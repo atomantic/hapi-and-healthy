@@ -75,8 +75,14 @@ You can run them with `gulp test` or `npm test`
 
 ```javascript
 
+var Hapi = require('hapi');
 // Hapi Server
-var server = hapi.createServer();
+var server = Hapi.createServer();
+
+server.connection({
+    host: 'locahost',
+    port: 3192
+});
 
 // capture app ENV
 var env = process.env.NODE_ENV||'DEV';
@@ -93,7 +99,7 @@ var memcached = new Memcached('localhost:11211');
 var content = require('./lib/content');
 
 // Register the plugin with custom config
-server.pack.register({
+server.register({
   plugin: require("hapi-and-healthy"),
   options: {
     custom: {

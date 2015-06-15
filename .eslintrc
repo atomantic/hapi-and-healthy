@@ -1,0 +1,14 @@
+{
+  "env": {
+    "node": true,
+  },
+  "globals": {
+  },
+  "rules": {
+    "brace-style": [1, "1tbs", { "allowSingleLine": true }],
+    "camelcase": 0,
+    "no-multi-spaces": [2, 1],
+    "quotes": [2, "single"],
+    "strict": 0
+  }
+}

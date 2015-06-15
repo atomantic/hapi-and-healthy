@@ -11,7 +11,7 @@ describe('purge output directory', function(){
         // clean output directory
         var path = 'test/output';
         fs.readdirSync(path).forEach(function(file){
-            if(file.indexOf('.json')!==-1){
+            if(file.indexOf('.json') !== -1){
                 fs.unlinkSync(path + '/' + file);
             }
         });

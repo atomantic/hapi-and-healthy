@@ -1,0 +1,15 @@
+{
+    "indent": {
+        "value": "    "
+    },
+    "plugins": [
+        "esformatter-braces",
+        "esformatter-dot-notation",
+        "esformatter-equals",
+        "esformatter-quotes"
+    ],
+    "quotes": {
+        "type": "single",
+        "avoidEscape": false
+    }
+}

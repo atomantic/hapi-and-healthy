@@ -1,30 +1,30 @@
 var pjson = require('../../package.json');
 module.exports = {
-    plugin: require('../../'),
+    register: require('../../'),
     options: {
         env: 'FOO',
         id: '1',
         name: pjson.name,
-        test:{
-            node:[function(cb){
-                return cb(null,'memcache all good');
-            },function(cb){
-                return cb(null,'checksum good');
+        test: {
+            node: [function (cb) {
+                return cb(null, 'memcache all good');
+            }, function (cb) {
+                return cb(null, 'checksum good');
             }],
-            features:[function(cb){
+            features: [function (cb) {
                 return cb(null, 'some feature is available');
-            },function(cb){
+            }, function (cb) {
                 return cb(null, 'another feature is available');
             }]
         },
-        state:{
+        state: {
             good: 'HEALTHY',
             bad: 'FATAL',
             warn: 'WARN'
         },
         path: '/service-status',
         version: pjson.version,
-        usage:true,
-        usage_proc:true
+        usage: true,
+        usage_proc: true
     }
 };

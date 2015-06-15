@@ -9,41 +9,45 @@
 
 // Server Layer
 // http://hapijs.com/api
-var Hapi       = require('hapi');
-var server     = new Hapi.Server(3192);
-
+var Hapi = require('hapi');
 // include package so we can get the version number
-var pjson      = require('./package.json');
+var pjson = require('./package.json');
 
-server.pack.register({
+var server = new Hapi.Server();
+
+server.connection({
+    port: 3192
+});
+
+server.register({
         // a real app would do this:
         //plugin: require('hapi-and-healthy'),
         // but I'm dogfooding here:
-        plugin: require('./index'),
+        register: require('./index'),
         options: {
             //defaultContentType: 'application/json',
             // recommend setting the env var with PM2 process.json file
             // https://github.com/Unitech/PM2/blob/development/ADVANCED_README.md#json-app-declaration
-            env: process.env.APP_ENV||'QA',
+            env: process.env.APP_ENV || 'QA',
             name: pjson.name,
-            test:{
+            test: {
                 // a series of tests that will tell if this node
                 // is configured badly or has some other reason it
                 // should be pulled out of rotation
-                node:[
-                    function(cb){
+                node: [
+                    function (cb) {
                         // todo: test git commit hash / checksum against memcached manifest
                         // to see if this node is in compliance with the release version
-                        return cb(false,'code checksum matches manifest');
+                        return cb(false, 'code checksum matches manifest');
                     }
                 ],
-                features:[
-                    function(cb){
+                features: [
+                    function (cb) {
                         // TODO: query a status report of a cron smoke test or
                         // query memcached/redis, etc for logs of failures within a given timeframe
                         // if we hit a threshold, return cb(true, message), which will throw this
                         // node into WARN state
-                        return cb(false,'some feature or API endpoint passed tests');
+                        return cb(false, 'some feature or API endpoint passed tests');
                     }
                 ]
             },
@@ -51,7 +55,7 @@ server.pack.register({
             version: pjson.version
         }
     },
-    function(err){
+    function (err) {
         if (err) {
             throw err;
         }
@@ -62,5 +66,5 @@ server.pack.register({
  * Start the Server!
  */
 server.start(function () {
-    console.log('Server running at:', server.info.uri, 'version: ', pjson.version);
+    console.log('Server running at:', server.info, 'version: ', pjson.version);
 });
