@@ -41,6 +41,7 @@ var schema = {
                     health: Joi.object().keys(healthKeys).required()
                 } : {}),
                 name: Joi.string().required(),
+                schema: Joi.string().required(),
                 status: schemaStatus.required(),
                 version: Joi.string().required()
             }).required()

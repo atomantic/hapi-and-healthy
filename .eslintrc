@@ -7,7 +7,7 @@
   "rules": {
     "brace-style": [1, "1tbs", { "allowSingleLine": true }],
     "camelcase": 0,
-    "no-multi-spaces": [2, 1],
+    "no-multi-spaces": 2,
     "quotes": [2, "single"],
     "strict": 0
   }

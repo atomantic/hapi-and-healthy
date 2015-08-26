@@ -12,7 +12,6 @@ var _ = require('../lib/_');
 var common = require('./lib/common');
 var pluginConfig = require('./lib/config');
 
-
 var setName = _.last(__filename.split('/')).replace('.js', '');
 
 describe('Hapi-and-Healthy plugin: ' + setName, function () {
