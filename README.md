@@ -251,6 +251,7 @@ runs full, verbose suite of health checks and returns machine friendly output
         "os_uptime": 606723
       }
     },
+    "schema": "1.0.0",
     "status": {
       "state": "GOOD",
       "message": [
@@ -290,6 +291,7 @@ runs full, verbose suite of health checks and returns human friendly output
         "os_uptime": "10 minutes, 7.686 seconds"
       }
     },
+    "schema": "1.0.0",
     "status": {
       "state": "GOOD",
       "message": [
@@ -303,13 +305,16 @@ runs full, verbose suite of health checks and returns human friendly output
 ```
 
 ## History
-# 3.5.0
+### 3.5.0
   - added schema version number for tracking the schema version as it changes across versions of this api
-# 3.4.0
+
+### 3.4.0
   - Addition of WARN state handling and running of options.tests.features
-# 3.0.0
+
+### 3.0.0
   - added defaultContentType, defaults to 'text/plain', which means hitting /service-status with no "accept" header will default to single word, plaintext reply
-#2.0.0
+
+### 2.0.0
   - breaks backward compatibility in many ways:
   - only one endpoint now
   - health information is put into a server.custom payload (only in verbose mode with ?v query)
