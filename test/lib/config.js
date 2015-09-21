@@ -24,7 +24,6 @@ module.exports = {
         },
         path: '/service-status',
         version: pjson.version,
-        usage: true,
-        usage_proc: true
+        usage: true
     }
 };

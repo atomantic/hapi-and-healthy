@@ -68,7 +68,6 @@ You can run them with `gulp test` or `npm test`
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
 - `usage` - (`boolean`) - show usage/health information (cpu, memory, etc). Default: true
-- `usage_proc` - (`boolean`) - show process usage/health information (cpu_proc, mem_proc, etc). Default: true (only valid as true in conjunction with usage:true). This flag was added as a way to allow turning off the inclusion of the npm `usage` module, which failed to work on some of the OS containers we tried.
 - `version` - (`string`) - the version of your service (probably from your package.json)
 
 ### Example
@@ -243,10 +242,8 @@ runs full, verbose suite of health checks and returns machine friendly output
           1.732421875,
           1.88818359375
         ],
-        "cpu_proc": 0.1,
         "mem_free": 354811904,
         "mem_free_percent": 0.02065277099609375,
-        "mem_proc": 0.0018384456634521484,
         "mem_total": 17179869184,
         "os_uptime": 606723
       }
@@ -283,10 +280,8 @@ runs full, verbose suite of health checks and returns human friendly output
           2.107421875,
           2.05810546875
         ],
-        "cpu_proc": "0.00%",
         "mem_free": "464.19 MB",
         "mem_free_percent": "0.03%",
-        "mem_proc": "0.00%",
         "mem_total": "17.18 GB",
         "os_uptime": "10 minutes, 7.686 seconds"
       }
@@ -305,6 +300,10 @@ runs full, verbose suite of health checks and returns human friendly output
 ```
 
 ## History
+### 4.0.0
+  - remove `usage` package as it didn't compile on many systems and caused problems with other libraries using this package
+  - no longer supplying `cpu_proc` and `mem_proc` in verbose report
+
 ### 3.5.0
   - added schema version number for tracking the schema version as it changes across versions of this api
 
