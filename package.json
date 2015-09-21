@@ -44,7 +44,7 @@
   "dependencies": {
     "async": "^1.4.2",
     "git-rev": "~0.2.1",
-    "humanize-duration": "~2.8.0",
+    "humanize-duration": "^3.3.0",
     "lodash": "^3.10.1",
     "pretty-bytes": "^2.0.1",
     "undermore": "~1.9.1",
