@@ -77,7 +77,7 @@ var common = {
         }, function (res) {
             common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers);
             expect(res.statusCode).to.equal(code);
-            expect(res.result).to.be.null;
+            expect(res.result).to.be.null();
             done();
         });
     },
@@ -96,7 +96,7 @@ var common = {
             if (conf.usage_proc) {
                 filename += '.proc';
             }
-            console.log(name, 'verbose', conf, filename);
+            //console.log(name, 'verbose', conf, filename);
             common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers);
             expect(res.statusCode).to.equal(code);
             expect(res.result.service).to.be.instanceof(Object);

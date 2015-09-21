@@ -27,7 +27,7 @@ var schema = {
         if (conf.usage_proc) {
             healthKeys.cpu_proc = conf.human ?
                 Joi.string().required() :
-                Joi.number().min(0).max(101).required();
+                Joi.number().min(0).max(201).required();
             healthKeys.mem_proc = conf.human ?
                 Joi.string().required() :
                 Joi.number().min(0).max(1).required();
