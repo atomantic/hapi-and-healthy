@@ -2,7 +2,7 @@ var Joi = require('joi');
 
 var schemaStatus = Joi.object().keys({
     state: Joi.string(),
-    message: Joi.array(),
+    message: Joi.array().sparse(),
     published: Joi.string()
 });
 // var schemaBasic = Joi.object().keys({
@@ -14,7 +14,7 @@ var schemaStatus = Joi.object().keys({
 var schema = {
     createExpectedSchema: function (conf) {
         var healthKeys = {
-            cpu_load: Joi.array().length(3).includes(Joi.number()).required(),
+            cpu_load: Joi.array().length(3).items(Joi.number()).required(),
             mem_free: conf.human ?
                 Joi.string().required() : Joi.number().integer().required(),
             mem_free_percent: conf.human ?
