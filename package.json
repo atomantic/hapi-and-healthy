@@ -35,7 +35,7 @@
     "gulp-jshint": "^1.11.2",
     "gulp-lab": "~1.0.0",
     "gulp-supervisor": "~0.1.2",
-    "gulp-webserver": "~0.7.0",
+    "gulp-webserver": "^0.9.1",
     "hapi": "~8.8.1",
     "joi": "~4.6.2",
     "lab": "^5.18.1",
