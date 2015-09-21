@@ -1,6 +1,6 @@
 {
   "name": "hapi-and-healthy",
-  "version": "3.6.1",
+  "version": "4.0.0",
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
@@ -47,7 +47,6 @@
     "humanize-duration": "^3.3.0",
     "lodash": "^3.10.1",
     "pretty-bytes": "^2.0.1",
-    "undermore": "~1.9.1",
-    "usage": "~0.7.1"
+    "undermore": "~1.9.1"
   }
 }

@@ -51,7 +51,6 @@ server.register({
                     }
                 ]
             },
-            //usage_proc: false,
             version: pjson.version
         }
     },

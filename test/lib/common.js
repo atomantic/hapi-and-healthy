@@ -93,9 +93,6 @@ var common = {
             if (conf.usage) {
                 filename += '.usage';
             }
-            if (conf.usage_proc) {
-                filename += '.proc';
-            }
             //console.log(name, 'verbose', conf, filename);
             common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers);
             expect(res.statusCode).to.equal(code);

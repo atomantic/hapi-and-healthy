@@ -19,7 +19,6 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
     var testPluginConfig = _.cloneDeep(pluginConfig);
 
     testPluginConfig.options.usage = false;
-    testPluginConfig.options.usage_proc = false;
 
     var code = 200;
     var state = testPluginConfig.options.state.good;
@@ -71,16 +70,14 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
     it('should respond ' + code + ' code and expected output with verbose machine friendly', function (done) {
         common.shouldVerbose(setName, server, {
             human: false,
-            usage: testPluginConfig.options.usage,
-            usage_proc: testPluginConfig.options.usage_proc
+            usage: testPluginConfig.options.usage
         }, code, state, done);
     });
 
     it('should respond ' + code + ' code and expected output with verbose human friendly', function (done) {
         common.shouldVerbose(setName, server, {
             human: true,
-            usage: testPluginConfig.options.usage,
-            usage_proc: testPluginConfig.options.usage_proc
+            usage: testPluginConfig.options.usage
         }, code, state, done);
     });
 });
