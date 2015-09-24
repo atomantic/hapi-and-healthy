@@ -51,6 +51,7 @@ server.register({
                     }
                 ]
             },
+            paths: ['v1', 'v2'],
             version: pjson.version
         }
     },
