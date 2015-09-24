@@ -61,6 +61,7 @@ You can run them with `gulp test` or `npm test`
 - `lang` - (`string`) Default 'en' a language override for the human output health data. This endpoint uses the [Humanize Duration package](https://www.npmjs.org/package/humanize-duration) so any valid language override for that library will be valid here (`fr`, `de`, `ko`, etc)
 - `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
 - `path` - (`string`) An override path for the default `'/service-status'` endpoint
+- `paths` - (`array`) A list of available versioned paths on this service (e.g. ["v1", "v2"]). This can be used for automated discovery of versioned endpoints deployed on this service (e.g. for detecting the location of a /v2/feature-status API endpoint)
 - `test.node` - (`array`) A set of async functions to run for testing your node health
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
@@ -299,7 +300,10 @@ runs full, verbose suite of health checks and returns human friendly output
 }
 ```
 
-## History
+## Historys
+### 4.1.0
+  - add support for `paths` option to expose which versioned endpoints the API has available. This can be used for automated discovery of where API versioned feature status endpoints live (e.g. /v2/feature-status)
+
 ### 4.0.0
   - remove `usage` package as it didn't compile on many systems and caused problems with other libraries using this package
   - no longer supplying `cpu_proc` and `mem_proc` in verbose report
