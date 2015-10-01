@@ -30,23 +30,23 @@
   },
   "homepage": "https://github.com/atomantic/hapi-and-healthy",
   "devDependencies": {
-    "code": "~1.5.0",
-    "gulp": "^3.9.0",
-    "gulp-jshint": "^1.11.2",
-    "gulp-lab": "~1.0.0",
-    "gulp-supervisor": "~0.1.2",
-    "gulp-webserver": "^0.9.1",
-    "hapi": "^10.0.0",
-    "joi": "^6.7.1",
-    "lab": "^5.18.1",
-    "opn": "^3.0.2"
+    "code": "1.5.0",
+    "gulp": "3.9.0",
+    "gulp-jshint": "1.11.2",
+    "gulp-lab": "1.0.5",
+    "gulp-supervisor": "0.1.2",
+    "gulp-webserver": "0.9.1",
+    "hapi": "10.1.0",
+    "joi": "6.7.1",
+    "lab": "5.18.1",
+    "opn": "3.0.2"
   },
   "dependencies": {
-    "async": "^1.4.2",
-    "git-rev": "~0.2.1",
-    "humanize-duration": "^3.3.0",
-    "lodash": "^3.10.1",
-    "pretty-bytes": "^2.0.1",
-    "undermore": "~1.9.1"
+    "async": "1.4.2",
+    "git-rev": "0.2.1",
+    "humanize-duration": "3.3.0",
+    "lodash": "3.10.1",
+    "pretty-bytes": "2.0.1",
+    "undermore": "1.9.1"
   }
 }
