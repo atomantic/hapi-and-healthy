@@ -300,7 +300,11 @@ runs full, verbose suite of health checks and returns human friendly output
 }
 ```
 
-## Historys
+## History
+
+### 4.1.x
+  - Now using greenkeeper to keep dependencies up to date
+
 ### 4.1.0
   - add support for `paths` option to expose which versioned endpoints the API has available. This can be used for automated discovery of where API versioned feature status endpoints live (e.g. /v2/feature-status)
 
