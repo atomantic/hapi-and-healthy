@@ -1,6 +1,6 @@
 {
   "name": "hapi-and-healthy",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "gulp-webserver": "0.9.1",
     "hapi": "10.1.0",
     "joi": "6.7.1",
-    "lab": "5.18.1",
+    "lab": "^6.1.0",
     "opn": "3.0.2"
   },
   "dependencies": {
