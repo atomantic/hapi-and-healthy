@@ -36,7 +36,7 @@
     "gulp-lab": "1.0.5",
     "gulp-supervisor": "0.1.2",
     "gulp-webserver": "0.9.1",
-    "hapi": "10.1.0",
+    "hapi": "10.2.0",
     "joi": "6.7.1",
     "lab": "^6.1.0",
     "opn": "3.0.2"
