@@ -62,6 +62,7 @@ You can run them with `gulp test` or `npm test`
 - `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
 - `path` - (`string`) An override path for the default `'/service-status'` endpoint
 - `paths` - (`array`) A list of available versioned paths on this service (e.g. ["v1", "v2"]). This can be used for automated discovery of versioned endpoints deployed on this service (e.g. for detecting the location of a /v2/feature-status API endpoint)
+- `schema` - (`string`) Schema version number (defualts to 1.1.0 -- the schema version of this library)
 - `test.node` - (`array`) A set of async functions to run for testing your node health
   - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
   - `message` is an optional mixed value (json or string) that will give more info about that status
