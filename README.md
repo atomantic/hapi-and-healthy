@@ -1,8 +1,5 @@
 # \\[._.]/ - Hapi and Healthly API
 
-
-
-[![](http://img.shields.io/gratipay/antic.svg?style=flat)](https://gratipay.com/antic)
 [![](http://img.shields.io/npm/dm/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 [![](http://img.shields.io/npm/v/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 [![](http://img.shields.io/codeclimate/github/atomantic/hapi-and-healthy.svg?style=flat)](https://codeclimate.com/github/atomantic/hapi-and-healthy)
