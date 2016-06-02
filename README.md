@@ -297,3 +297,8 @@ runs full, verbose suite of health checks and returns human friendly output
   }
 }
 ```
+
+## Support
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/atomantic/hapi-and-healthy/badge.svg?style=beer-square)](https://beerpay.io/atomantic/hapi-and-healthy)
