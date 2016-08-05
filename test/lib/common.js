@@ -1,9 +1,9 @@
-var fs = require('fs');
-var Code = require('code');
-var expect = Code.expect;
-var Joi = require('joi');
-var pjson = require('../../package.json');
-var schema = require('./schema');
+var fs = require('fs')
+var Code = require('code')
+var expect = Code.expect
+var Joi = require('joi')
+var pjson = require('../../package.json')
+var schema = require('./schema')
 var common = {
     /**
      * writeOutput writes the test output data to a json file
@@ -20,29 +20,29 @@ var common = {
             JSON.stringify(body, null, 2),
             function (err) {
                 if (err) {
-                    console.error('failed to write output file', err);
+                    console.error('failed to write output file', err)
                 }
             }
-        );
+        )
         if (headers) {
-            headers.date = '[DYNAMIC]';
+            headers.date = '[DYNAMIC]'
             fs.writeFile(
                 'test/output/' + name + '.headers.json',
                 JSON.stringify(headers, null, 2),
                 function (err) {
                     if (err) {
-                        console.error('failed to write headers output file', err);
+                        console.error('failed to write headers output file', err)
                     }
                 }
-            );
+            )
         }
     },
     shouldRegisterRoutes: function (server, done) {
-        var tables = server.table();
-        var table = tables[0].table;
-        expect(table).to.have.length(1);
-        expect(table[0].path).to.equal('/service-status');
-        done();
+        var tables = server.table()
+        var table = tables[0].table
+        expect(table).to.have.length(1)
+        expect(table[0].path).to.equal('/service-status')
+        done()
     },
     shouldPlainExplicit: function (name, server, code, state, done) {
         server.inject({
@@ -52,65 +52,65 @@ var common = {
                 accept: 'text/plain'
             }
         }, function (res) {
-            common.writeOutput(name + '.shouldPlainExplicit.' + res.statusCode, res.result, res.headers);
-            expect(res.statusCode).to.equal(code);
-            expect(res.result).to.equal(state);
-            done();
-        });
+            common.writeOutput(name + '.shouldPlainExplicit.' + res.statusCode, res.result, res.headers)
+            expect(res.statusCode).to.equal(code)
+            expect(res.result).to.equal(state)
+            done()
+        })
     },
     shouldPlainDefault: function (name, server, code, state, done) {
         server.inject({
             method: 'GET',
             url: '/service-status'
         }, function (res) {
-            common.writeOutput(name + '.shouldPlainDefault.' + res.statusCode, res.result, res.headers);
-            expect(res.statusCode).to.equal(code);
-            expect(res.result).to.equal(state);
+            common.writeOutput(name + '.shouldPlainDefault.' + res.statusCode, res.result, res.headers)
+            expect(res.statusCode).to.equal(code)
+            expect(res.result).to.equal(state)
 
-            done();
-        });
+            done()
+        })
     },
     shouldHead: function (name, server, code, state, done) {
         server.inject({
             method: 'HEAD',
             url: '/service-status'
         }, function (res) {
-            common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers);
-            expect(res.statusCode).to.equal(code);
-            expect(res.result).to.be.null();
-            done();
-        });
+            common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers)
+            expect(res.statusCode).to.equal(code)
+            expect(res.result).to.be.null()
+            done()
+        })
     },
     shouldVerbose: function (name, server, conf, code, state, done) {
         server.inject({
             method: 'GET',
             url: '/service-status?v' + (conf.human ? '&h' : '')
         }, function (res) {
-            var filename = name + '.shouldVerbose';
+            var filename = name + '.shouldVerbose'
             if (conf.human) {
-                filename += '.human';
+                filename += '.human'
             }
             if (conf.usage) {
-                filename += '.usage';
+                filename += '.usage'
             }
-            //console.log(name, 'verbose', conf, filename);
-            common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers);
-            expect(res.statusCode).to.equal(code);
-            expect(res.result.service).to.be.instanceof(Object);
-            expect(res.result.service.env).to.equal('FOO');
-            expect(res.result.service.id).to.equal('1');
-            expect(res.result.service.name).to.equal(pjson.name);
-            expect(res.result.service.version).to.equal(pjson.version);
-            expect(res.result.service.status.state).to.equal(state);
+            //console.log(name, 'verbose', conf, filename)
+            common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers)
+            expect(res.statusCode).to.equal(code)
+            expect(res.result.service).to.be.instanceof(Object)
+            expect(res.result.service.env).to.equal('FOO')
+            expect(res.result.service.id).to.equal('1')
+            expect(res.result.service.name).to.equal(pjson.name)
+            expect(res.result.service.version).to.equal(pjson.version)
+            expect(res.result.service.status.state).to.equal(state)
 
             Joi.validate(res.result,
                 schema.createExpectedSchema(conf),
                 function (err /*, value*/ ) {
-                    expect(err).to.not.exist();
-                    done();
+                    expect(err).to.not.exist()
+                    done()
                 }
-            );
-        });
+            )
+        })
     }
-};
-module.exports = common;
+}
+module.exports = common

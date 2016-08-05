@@ -1,4 +1,4 @@
-var pjson = require('../../package.json');
+var pjson = require('../../package.json')
 module.exports = {
     register: require('../../'),
     options: {
@@ -7,14 +7,14 @@ module.exports = {
         name: pjson.name,
         test: {
             node: [function (cb) {
-                return cb(null, 'memcache all good');
+                return cb(null, 'memcache all good')
             }, function (cb) {
-                return cb(null, 'checksum good');
+                return cb(null, 'checksum good')
             }],
             features: [function (cb) {
-                return cb(null, 'some feature is available');
+                return cb(null, 'some feature is available')
             }, function (cb) {
-                return cb(null, 'another feature is available');
+                return cb(null, 'another feature is available')
             }]
         },
         state: {
@@ -26,4 +26,4 @@ module.exports = {
         version: pjson.version,
         usage: true
     }
-};
+}

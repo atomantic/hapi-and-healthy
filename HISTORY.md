@@ -1,5 +1,10 @@
 # History
 
+## 4.5.0
+  - update all deps
+  - \\[^_^]/ no more semicolons
+  - `.nvmrc` with 4.4.7
+
 ## 4.1.x
   - Now using greenkeeper to keep dependencies up to date
 

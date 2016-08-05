@@ -1,15 +1,15 @@
-var Joi = require('joi');
+var Joi = require('joi')
 
 var schemaStatus = Joi.object().keys({
     state: Joi.string(),
     message: Joi.array().sparse(),
     published: Joi.string()
-});
+})
 // var schemaBasic = Joi.object().keys({
 //     service: Joi.object().keys({
 //         status: schemaStatus
 //     })
-// });
+// })
 
 var schema = {
     createExpectedSchema: function (conf) {
@@ -23,7 +23,7 @@ var schema = {
                 Joi.string().required() : Joi.number().integer().required(),
             os_uptime: conf.human ?
                 Joi.string().required() : Joi.number().required()
-        };
+        }
 
         return Joi.object().keys({
             service: Joi.object().keys({
@@ -37,8 +37,8 @@ var schema = {
                 status: schemaStatus.required(),
                 version: Joi.string().required()
             }).required()
-        });
+        })
     }
-};
+}
 
-module.exports = schema;
+module.exports = schema
