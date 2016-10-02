@@ -1,8 +1,14 @@
 # History
 
+## 4.6.0
+  - update all deps
+  - `.nvmrc` with 4.6.0
+  - `npm run nodeversions` to run `autochecker` tests in various node.js versions
+  - accept [PR #19](https://github.com/atomantic/hapi-and-healthy/pull/19/files) from @codemouse to make tags an option
+
 ## 4.5.0
   - update all deps
-  - \\[^_^]/ no more semicolons
+  - \\[^\_^]/ no more semicolons
   - `.nvmrc` with 4.4.7
 
 ## 4.1.x
