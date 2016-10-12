@@ -76,32 +76,34 @@ You can run them with `gulp test` or `npm test`
 
 ```javascript
 
-var Hapi = require('hapi');
+const Hapi = require('hapi')
 // Hapi Server
-var server = Hapi.createServer();
+const server = Hapi.createServer()
 
 server.connection({
     host: 'locahost',
     port: 3192
-});
+})
 
 // capture app ENV
-var env = process.env.NODE_ENV||'DEV';
+const env = process.env.NODE_ENV||'DEV'
 
 // node os (for test example)
-var os = require('os');
+const os = require('os')
 
 // local memcached (for test example)
-var Memcached = require('memcached');
-var memcached = new Memcached('localhost:11211');
+const Memcached = require('memcached')
+const memcached = new Memcached('localhost:11211')
 
 // example app-specific module for feature testing
 // we have a content engine for keeping the site content up-to-date (see feature tests below)
-var content = require('./lib/content');
+const content = require('./lib/content')
+
+const pjson = require('./package')
 
 // Register the plugin with custom config
 server.register({
-  plugin: require("hapi-and-healthy"),
+  register: require("hapi-and-healthy"),
   options: {
     custom: {
         // let's just say we want to keep an eye on the memcached pool
@@ -120,16 +122,16 @@ server.register({
           // At deploy time, we update memcache with the release version for this env
           // using a deploy script (stored under 'app_version_'+env)
           memcached.get('app_version_'+env,function(err,data){
-            if(err) return cb(true, err);
+            if(err) return cb(true, err)
 
             if(data!==pjson.version){
               // this codebase does not match our release manifest
               // don't allow it in rotation
-              return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version);
+              return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version)
             }
             // ok, all good on this check
-            return cb(null, 'matches expected version ('+pjson.version+')');
-          });
+            return cb(null, 'matches expected version ('+pjson.version+')')
+          })
         }
       ],
       features:[
@@ -146,15 +148,15 @@ server.register({
           memcached.get('content_hash',function(err, data){
             // console.log('memcached found', err, data);
             if(err){
-                return cb(true, 'memcached error: '+err);
+                return cb(true, 'memcached error: '+err)
             }
             if(data!==content.hash){
               // latest memcached version is different from this node's
               // idea of what the content version is
               // which means this node is behind other nodes
-              return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)');
+              return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)')
             }
-            return cb(null, 'content matches other nodes');
+            return cb(null, 'content matches other nodes')
           });
         }
       ]
@@ -162,9 +164,9 @@ server.register({
     version: pjson.version
   }},
   function (err){
-    if(err){throw err;}
+    if(err){throw err}
   }
-);
+)
 ```
 
 ## API
