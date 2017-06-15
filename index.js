@@ -1,4 +1,4 @@
-var _ = require('./lib/_')
+var _ = require('lodash')
 var config = require('./lib/config')
 
 exports.register = function (server, options, next) {
