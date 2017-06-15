@@ -1,5 +1,9 @@
 # History
 
+## 5.0.0
+ - no longer supporting Node 0.x.x versions (using Buffer)
+ - remove `undermore` in favor of Buffer b64
+
 ## 4.6.0
   - update all deps
   - `.nvmrc` with 4.6.0

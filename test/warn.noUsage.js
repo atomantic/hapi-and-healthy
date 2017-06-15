@@ -8,7 +8,7 @@ var after = lab.after
 var it = lab.it
 var expect = Code.expect
 
-var _ = require('../lib/_')
+var _ = require('lodash')
 var common = require('./lib/common')
 
 var pluginConfig = require('./lib/config')
