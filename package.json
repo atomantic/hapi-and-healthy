@@ -45,13 +45,9 @@
   },
   "dependencies": {
     "async": "2.0.1",
-    "atob": "2.0.3",
-    "base-64": "0.1.0",
-    "btoa": "1.1.2",
     "git-rev": "0.2.1",
     "humanize-duration": "3.9.1",
     "lodash": "4.16.2",
-    "pretty-bytes": "4.0.2",
-    "utf8": "2.1.2"
+    "pretty-bytes": "4.0.2"
   }
 }
