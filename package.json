@@ -48,7 +48,6 @@
     "git-rev": "0.2.1",
     "humanize-duration": "3.9.1",
     "lodash": "4.16.2",
-    "pretty-bytes": "4.0.2",
-    "undermore": "1.9.2"
+    "pretty-bytes": "4.0.2"
   }
 }
