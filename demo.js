@@ -32,20 +32,20 @@ server.register([{
       // is configured badly or has some other reason it
       // should be pulled out of rotation
       node: [
-        function(cb) {
+        new Promise((resolve, reject) => {
           // todo: test git commit hash / checksum against memcached manifest
           // to see if this node is in compliance with the release version
-          return cb(false, 'code checksum matches manifest')
-        }
+          resolve('code checksum matches manifest')
+        })
       ],
       features: [
-        function(cb) {
+        new Promise((resolve, reject) => {
           // TODO: query a status report of a cron smoke test or
           // query memcached/redis, etc for logs of failures within a given timeframe
           // if we hit a threshold, return cb(true, message), which will throw this
           // node into WARN state
-          return cb(false, 'some feature or API endpoint passed tests')
-        }
+          resolve('some feature or API endpoint passed tests')
+        })
       ]
     },
     paths: ['v1', 'v2'],
