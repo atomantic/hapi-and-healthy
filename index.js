@@ -1,6 +1,6 @@
 'use strict'
 
-const _ = require('./lib/_')
+const _ = require('lodash')
 const config = require('./lib/config')
 
 module.exports = {

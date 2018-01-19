@@ -1,7 +1,11 @@
 # History
 
+## 6.0.0
+- upgrade to Hapi 17 (major breaking upgrade)
+
 ## 5.0.0
-  - upgrade to Hapi 17 (major breaking upgrade)
+ - no longer supporting Node 0.x.x versions (using Buffer)
+ - remove `undermore` in favor of Buffer b64
 
 ## 4.6.0
   - update all deps
