@@ -7,7 +7,7 @@
 [![](http://img.shields.io/david/atomantic/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 
 
-> Version 5.x.x only supports hapi v17 and above.
+> Version 6.x.x only supports hapi v17 and above.
 
 This [Hapi.js](https://www.npmjs.org/package/hapi) plugin provides a configurable route for `/service-status` (`/health`) API reporting which returns a varied output depending on the consumer headers, request type and query flags.
 
@@ -67,11 +67,10 @@ You can run them with `npm test`
 - `paths` - (`array`) A list of available versioned paths on this service (e.g. ["v1", "v2"]). This can be used for automated discovery of versioned endpoints deployed on this service (e.g. for detecting the location of a /v2/feature-status API endpoint)
 - `schema` - (`string`) Schema version number (defualts to 1.1.0 -- the schema version of this library)
 - `tags` - (`array`) Hapi Route tags for your status API (defaults to `['api', 'health', 'status']`)
-- `test.node` - (`array`) A set of async functions to run for testing your node health
-  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+- `test.node` - (`array`) A set of Promises to run for testing your node health
+  - each Promise should resolve an error or success
   - `message` is an optional mixed value (json or string) that will give more info about that status
-- `test.features` - (`array`) A set of async functions to run for testing optional features and dependencies. Ideally this would be a query on a file dump of a smoke test that gets run periodically to test each of the API endpoints or features of your service. It could also be a check to memcached for logs of known errors in the system (counter of unhandledException, cached by API path or flow, etc).
-  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+- `test.features` - (`array`) A set of Promises to run for testing optional features and dependencies. Ideally this would be a query on a file dump of a smoke test that gets run periodically to test each of the API endpoints or features of your service. It could also be a check to memcached for logs of known errors in the system (counter of unhandledException, cached by API path or flow, etc).
   - `message` is an optional mixed value (json or string) that will give more info about that status
 - `usage` - (`boolean`) - show usage/health information (cpu, memory, etc). Default: true
 - `version` - (`string`) - the version of your service (probably from your package.json)
@@ -104,7 +103,7 @@ const content = require('./lib/content')
 const pjson = require('./package')
 
 // Register the plugin with custom config
-server.register({
+server.register([{
   plugin: require("hapi-and-healthy"),
   options: {
     custom: {
@@ -119,7 +118,7 @@ server.register({
       // which tells the API to reply with the failure.
       node:[
         // TEST 1: validate the version of this codebase matches release for this ENV
-        function(cb){
+        new Promise((resolve, reject) => {
           // check the release version against current codebase.
           // At deploy time, we update memcache with the release version for this env
           // using a deploy script (stored under 'app_version_'+env)
@@ -129,15 +128,15 @@ server.register({
             if(data!==pjson.version){
               // this codebase does not match our release manifest
               // don't allow it in rotation
-              return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version)
+              reject('version mismatch. Expected version is '+data+' but running '+pjson.version)
             }
             // ok, all good on this check
-            return cb(null, 'matches expected version ('+pjson.version+')')
+            resolve('matches expected version ('+pjson.version+')')
           })
-        }
+        })
       ],
       features:[
-        function(cb){
+        new Promise((resolve, reject) => {
           // let's say we have a content directory that we use a tool like chef to
           // dump onto the running node from a github repo
           // this is a seperate dependency from the node
@@ -150,25 +149,23 @@ server.register({
           memcached.get('content_hash',function(err, data){
             // console.log('memcached found', err, data);
             if(err){
-                return cb(true, 'memcached error: '+err)
+                reject('memcached error: '+err)
             }
             if(data!==content.hash){
               // latest memcached version is different from this node's
               // idea of what the content version is
               // which means this node is behind other nodes
-              return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)')
+              reject('content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)')
             }
-            return cb(null, 'content matches other nodes')
-          });
-        }
+            resolve('content matches other nodes')
+          })
+        })
       ]
     },
     version: pjson.version
-  }},
-  function (err){
-    if(err){throw err}
   }
-)
+}])
+.then(() => server.start())
 ```
 
 ## API
