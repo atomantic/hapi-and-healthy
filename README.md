@@ -6,7 +6,11 @@
 [![](http://img.shields.io/travis/atomantic/hapi-and-healthy.svg?style=flat)](https://travis-ci.org/atomantic/hapi-and-healthy)
 [![](http://img.shields.io/david/atomantic/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 
+
+> Version 5.x.x only supports hapi v17 and above.
+
 This [Hapi.js](https://www.npmjs.org/package/hapi) plugin provides a configurable route for `/service-status` (`/health`) API reporting which returns a varied output depending on the consumer headers, request type and query flags.
+
 
 The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the test.node array (in config), which will run in parallel and report basic health status for your node. Keep in mind that an LTM will hit this API about ~1/sec so the test functions should run really fast. Caching policy and what those tests actual are is entirely up to the application :)
 
@@ -31,7 +35,7 @@ Query flags are available for verbose output (`?v`) to machines and humans. This
 ## Installation:
 
 ```
-npm install --save hapi-and-healthy
+npm i -S hapi-and-healthy
 ```
 
 ## Demo:
@@ -40,14 +44,14 @@ Run the demo to see it in action and view the demo.js file for the code
 ```
 git clone git@github.com:atomantic/hapi-and-healthy.git
 cd hapi-and-healthy;
-npm install;
-gulp;
+npm i;
+npm test;
 ```
 
 ## Tests:
 
 This project now has 71 tests!
-You can run them with `gulp test` or `npm test`
+You can run them with `npm test`
 ![](https://raw.githubusercontent.com/atomantic/hapi-and-healthy/master/docs/tests.png)
 
 ## Configuration Options
@@ -78,9 +82,7 @@ You can run them with `gulp test` or `npm test`
 
 const Hapi = require('hapi')
 // Hapi Server
-const server = Hapi.createServer()
-
-server.connection({
+const server = Hapi.createServer({
     host: 'locahost',
     port: 3192
 })
@@ -103,7 +105,7 @@ const pjson = require('./package')
 
 // Register the plugin with custom config
 server.register({
-  register: require("hapi-and-healthy"),
+  plugin: require("hapi-and-healthy"),
   options: {
     custom: {
         // let's just say we want to keep an eye on the memcached pool

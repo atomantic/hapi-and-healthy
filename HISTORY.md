@@ -1,5 +1,8 @@
 # History
 
+## 5.0.0
+  - upgrade to Hapi 17 (major breaking upgrade)
+
 ## 4.6.0
   - update all deps
   - `.nvmrc` with 4.6.0

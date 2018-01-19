@@ -6,24 +6,21 @@
  *
  * This demonstrates the hapi-and-healthy plugin for rendering a configurable health/service-status API
  */
-
 // Server Layer
 // http://hapijs.com/api
-var Hapi = require('hapi')
+const Hapi = require('hapi')
 // include package so we can get the version number
-var pjson = require('./package.json')
+const pjson = require('./package.json')
 
-var server = new Hapi.Server()
-
-server.connection({
+const server = new Hapi.Server({
   port: 3192
 })
 
-server.register({
+server.register([{
   // a real app would do this:
   //plugin: require('hapi-and-healthy'),
   // but I'm dogfooding here:
-  register: require('./index'),
+  plugin: require('./index'),
   options: {
     //defaultContentType: 'application/json',
     // recommend setting the env var with PM2 process.json file
@@ -54,17 +51,6 @@ server.register({
     paths: ['v1', 'v2'],
     version: pjson.version
   }
-},
-  function(err) {
-    if (err) {
-      throw err
-    }
-  }
-)
-
-/**
- * Start the Server!
- */
-server.start(function() {
-  console.log('Server running at:', server.info, 'version: ', pjson.version)
-})
+}])
+.then(() => server.start())
+.then(() => console.log(`Server running at: ${server.info.uri} with ${pjson.version}`));

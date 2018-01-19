@@ -2,13 +2,13 @@
  * gulp
  * $ npm install gulp gulp-supervisor opn --save-dev
  */
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     supervisor = require('gulp-supervisor'),
     lab = require('gulp-lab'),
     opn = require('opn')
 
-var server = {
+const server = {
         host: 'localhost',
         port: '3192'
     },

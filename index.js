@@ -1,29 +1,18 @@
-var _ = require('./lib/_')
-var config = require('./lib/config')
+'use strict'
 
-exports.register = function (server, options, next) {
-    // merge custom options over default config
-    var opt = _.merge(config, options)
+const _ = require('./lib/_')
+const config = require('./lib/config')
 
-    // allow custom objects to be passed by reference
-    // lest _.merge copy the data at time of passing it
-    opt.custom = options.custom || {}
-
-    var routeConfig = require('./lib/route')(opt)
-
-    // Hapi.js < 8 compat (plugin is invoked with server instead of plugin as first arg)
-    if (server.servers) {
-        // create an endpoint for each server
-        server.servers.forEach(function (s) {
-            s.route(routeConfig)
-        })
-    } else {
-        server.route(routeConfig)
+module.exports = {
+    pkg: require('./package.json'),
+    register: async function (server, opts) {
+        // merge custom options over default config
+        const opt = _.merge(config, opts)
+    
+        // allow custom objects to be passed by reference
+        // lest _.merge copy the data at time of passing it
+        opt.custom = opts.custom || {}
+    
+        server.route(require('./lib/route')(opt))
     }
-
-    return next()
-}
-
-exports.register.attributes = {
-    pkg: require('./package.json')
 }
