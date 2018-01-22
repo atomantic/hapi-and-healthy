@@ -6,12 +6,16 @@
 [![](http://img.shields.io/travis/atomantic/hapi-and-healthy.svg?style=flat)](https://travis-ci.org/atomantic/hapi-and-healthy)
 [![](http://img.shields.io/david/atomantic/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 
+
+> Version 6.x.x only supports hapi v17 and above!
+
 This [Hapi.js](https://www.npmjs.org/package/hapi) plugin provides a configurable route for `/service-status` (`/health`) API reporting which returns a varied output depending on the consumer headers, request type and query flags.
 
-The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the test.node array (in config), which will run in parallel and report basic health status for your node. Keep in mind that an LTM will hit this API about ~1/sec so the test functions should run really fast. Caching policy and what those tests actual are is entirely up to the application :)
+
+The primary consumer is a Local Traffic Manager (LTM), which load balances and adds/removes nodes from rotation based on the API return status. You can add an arbitrary number of tests to the test.node array (in config), which will run in parallel and report basic health status for your node. Keep in mind that an LTM will hit this API every 1-10 seconds so the test functions should run really fast. Caching policy and what those tests actual are is entirely up to the application :)
 
 
-> NOTE: failing dependecy services should never cause your node to be marked bad. Your tests should only validate that your node is configured and running correctly (otherwise, an LTM would remove a good node out of the pool only because another service went down).
+> NOTE: failing dependecy services should never cause your node to be marked bad (lest you cascade failures down the chain--and remove your entire app stack from the node pool). Your tests should only validate that your node is configured and running correctly (otherwise, an LTM would remove a good node out of the pool only because another service went down).
 
 A secondary consumer is a DevOps maintainer who wants to see the status of the service and get more detailed information on what's going on with it.
 
@@ -31,7 +35,7 @@ Query flags are available for verbose output (`?v`) to machines and humans. This
 ## Installation:
 
 ```
-npm install --save hapi-and-healthy
+npm i -S hapi-and-healthy
 ```
 
 ## Demo:
@@ -40,14 +44,14 @@ Run the demo to see it in action and view the demo.js file for the code
 ```
 git clone git@github.com:atomantic/hapi-and-healthy.git
 cd hapi-and-healthy;
-npm install;
-gulp;
+npm i;
+npm test;
 ```
 
 ## Tests:
 
 This project now has 71 tests!
-You can run them with `gulp test` or `npm test`
+You can run them with `npm test`
 ![](https://raw.githubusercontent.com/atomantic/hapi-and-healthy/master/docs/tests.png)
 
 ## Configuration Options
@@ -63,11 +67,10 @@ You can run them with `gulp test` or `npm test`
 - `paths` - (`array`) A list of available versioned paths on this service (e.g. ["v1", "v2"]). This can be used for automated discovery of versioned endpoints deployed on this service (e.g. for detecting the location of a /v2/feature-status API endpoint)
 - `schema` - (`string`) Schema version number (defualts to 1.1.0 -- the schema version of this library)
 - `tags` - (`array`) Hapi Route tags for your status API (defaults to `['api', 'health', 'status']`)
-- `test.node` - (`array`) A set of async functions to run for testing your node health
-  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+- `test.node` - (`array`) A set of Promises to run for testing your node health
+  - each Promise should resolve an error or success
   - `message` is an optional mixed value (json or string) that will give more info about that status
-- `test.features` - (`array`) A set of async functions to run for testing optional features and dependencies. Ideally this would be a query on a file dump of a smoke test that gets run periodically to test each of the API endpoints or features of your service. It could also be a check to memcached for logs of known errors in the system (counter of unhandledException, cached by API path or flow, etc).
-  - each function must have a signature compatible with async.parallel `function(callback){callback(err, message)}`
+- `test.features` - (`array`) A set of Promises to run for testing optional features and dependencies. Ideally this would be a query on a file dump of a smoke test that gets run periodically to test each of the API endpoints or features of your service. It could also be a check to memcached for logs of known errors in the system (counter of unhandledException, cached by API path or flow, etc).
   - `message` is an optional mixed value (json or string) that will give more info about that status
 - `usage` - (`boolean`) - show usage/health information (cpu, memory, etc). Default: true
 - `version` - (`string`) - the version of your service (probably from your package.json)
@@ -78,9 +81,7 @@ You can run them with `gulp test` or `npm test`
 
 const Hapi = require('hapi')
 // Hapi Server
-const server = Hapi.createServer()
-
-server.connection({
+const server = Hapi.createServer({
     host: 'locahost',
     port: 3192
 })
@@ -102,8 +103,8 @@ const content = require('./lib/content')
 const pjson = require('./package')
 
 // Register the plugin with custom config
-server.register({
-  register: require("hapi-and-healthy"),
+server.register([{
+  plugin: require("hapi-and-healthy"),
   options: {
     custom: {
         // let's just say we want to keep an eye on the memcached pool
@@ -117,7 +118,7 @@ server.register({
       // which tells the API to reply with the failure.
       node:[
         // TEST 1: validate the version of this codebase matches release for this ENV
-        function(cb){
+        new Promise((resolve, reject) => {
           // check the release version against current codebase.
           // At deploy time, we update memcache with the release version for this env
           // using a deploy script (stored under 'app_version_'+env)
@@ -127,15 +128,15 @@ server.register({
             if(data!==pjson.version){
               // this codebase does not match our release manifest
               // don't allow it in rotation
-              return cb(true, 'version mismatch. Expected version is '+data+' but running '+pjson.version)
+              reject('version mismatch. Expected version is '+data+' but running '+pjson.version)
             }
             // ok, all good on this check
-            return cb(null, 'matches expected version ('+pjson.version+')')
+            resolve('matches expected version ('+pjson.version+')')
           })
-        }
+        })
       ],
       features:[
-        function(cb){
+        new Promise((resolve, reject) => {
           // let's say we have a content directory that we use a tool like chef to
           // dump onto the running node from a github repo
           // this is a seperate dependency from the node
@@ -148,25 +149,23 @@ server.register({
           memcached.get('content_hash',function(err, data){
             // console.log('memcached found', err, data);
             if(err){
-                return cb(true, 'memcached error: '+err)
+                reject('memcached error: '+err)
             }
             if(data!==content.hash){
               // latest memcached version is different from this node's
               // idea of what the content version is
               // which means this node is behind other nodes
-              return cb(true, 'content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)')
+              reject('content has fallen behind other nodes: '+content.hash+'(app) vs '+data+' (memcached)')
             }
-            return cb(null, 'content matches other nodes')
-          });
-        }
+            resolve('content matches other nodes')
+          })
+        })
       ]
     },
     version: pjson.version
-  }},
-  function (err){
-    if(err){throw err}
   }
-)
+}])
+.then(() => server.start())
 ```
 
 ## API
