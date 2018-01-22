@@ -7,7 +7,7 @@
 [![](http://img.shields.io/david/atomantic/hapi-and-healthy.svg?style=flat)](https://www.npmjs.org/package/hapi-and-healthy)
 
 
-> Version 6.x.x only supports hapi v17 and above.
+> Version 6.x.x only supports hapi v17 and above!
 
 This [Hapi.js](https://www.npmjs.org/package/hapi) plugin provides a configurable route for `/service-status` (`/health`) API reporting which returns a varied output depending on the consumer headers, request type and query flags.
 
