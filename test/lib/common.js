@@ -37,14 +37,12 @@ var common = {
             )
         }
     },
-    shouldRegisterRoutes: function (server, done) {
-        var tables = server.table()
-        var table = tables[0].table
+    shouldRegisterRoutes: function (server) {
+        var table = server.table()
         expect(table).to.have.length(1)
         expect(table[0].path).to.equal('/service-status')
-        done()
     },
-    shouldPlainExplicit: function (name, server, code, state, done) {
+    shouldPlainExplicit: function (name, server, code, state) {
         server.inject({
             method: 'GET',
             url: '/service-status',
@@ -55,10 +53,9 @@ var common = {
             common.writeOutput(name + '.shouldPlainExplicit.' + res.statusCode, res.result, res.headers)
             expect(res.statusCode).to.equal(code)
             expect(res.result).to.equal(state)
-            done()
         })
     },
-    shouldPlainDefault: function (name, server, code, state, done) {
+    shouldPlainDefault: function (name, server, code, state) {
         server.inject({
             method: 'GET',
             url: '/service-status'
@@ -66,11 +63,9 @@ var common = {
             common.writeOutput(name + '.shouldPlainDefault.' + res.statusCode, res.result, res.headers)
             expect(res.statusCode).to.equal(code)
             expect(res.result).to.equal(state)
-
-            done()
         })
     },
-    shouldHead: function (name, server, code, state, done) {
+    shouldHead: function (name, server, code, state) {
         server.inject({
             method: 'HEAD',
             url: '/service-status'
@@ -78,10 +73,9 @@ var common = {
             common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers)
             expect(res.statusCode).to.equal(code)
             expect(res.result).to.be.null()
-            done()
         })
     },
-    shouldVerbose: function (name, server, conf, code, state, done) {
+    shouldVerbose: function (name, server, conf, code, state) {
         server.inject({
             method: 'GET',
             url: '/service-status?v' + (conf.human ? '&h' : '')
@@ -107,7 +101,6 @@ var common = {
                 schema.createExpectedSchema(conf),
                 function (err /*, value*/ ) {
                     expect(err).to.not.exist()
-                    done()
                 }
             )
         })

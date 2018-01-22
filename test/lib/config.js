@@ -1,6 +1,6 @@
 var pjson = require('../../package.json')
 module.exports = {
-    register: require('../../'),
+    plugin: require('../../'),
     options: {
         env: 'FOO',
         id: '1',

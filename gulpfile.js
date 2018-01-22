@@ -15,12 +15,12 @@ const server = {
     files = ['./*.js']
 
 // Scripts
-gulp.task('js', function () {
+gulp.task('js', gulp.series(function () {
     return gulp.src(files)
         .pipe(eslint('.eslintrc'))
-})
+}))
 
-gulp.task('test', function () {
+gulp.task('test', gulp.series(function () {
     return gulp.src('test/*.js')
         // use lab tests
         // -v verbose
@@ -28,38 +28,34 @@ gulp.task('test', function () {
         // -C code coverage
         // -m 0 Timeout zero
         .pipe(lab('-v -l -C -m 0'))
-        .pipe(eslint('.eslintrc'))
-})
+        // .pipe(eslint('.eslintrc'))
+}))
 
-gulp.task('supervise', function () {
+gulp.task('supervise', gulp.series(function () {
     supervisor('demo.js', {
         args: [],
         watch: ['index.js', 'demo.js'],
         pollInterval: 500,
         extensions: ['js'],
         exec: 'node',
-        debug: true,
-        debugBrk: false,
         harmony: true,
         noRestartOn: false,
         forceWatch: true,
         quiet: false
     })
-})
+}))
 
-gulp.task('openbrowser', function () {
+gulp.task('openbrowser', gulp.series(function (done) {
     // supervise takes half a second to start it up
     setTimeout(function () {
         opn('http://' + server.host + ':' + server.port + '/service-status')
+        done()
     }, 500)
-})
+}))
 
 // Watch
-gulp.task('watch', function () {
-
-    // Watch .js files
+gulp.task('watch', gulp.series(function () {
     gulp.watch(files, ['js'])
+}))
 
-})
-
-gulp.task('default', ['js', 'supervise', 'watch', 'openbrowser'])
+gulp.task('default', gulp.series('js', 'supervise', 'watch', 'openbrowser'))

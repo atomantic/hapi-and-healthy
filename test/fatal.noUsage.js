@@ -34,57 +34,53 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
     // so a lot of copy/paste :(
     var server
 
-    before(function (done) {
-        server = new Hapi.Server()
-        server.connection({
+    before(function () {
+        server = new Hapi.Server({
             port: 3192
         })
-        done()
     })
 
-    after(function (done) {
-        server.stop(done)
+    after(function () {
+        server.stop()
     })
 
-    it('should load plugin succesfully', function (done) {
-        server.register(testPluginConfig,
-            function (err) {
-                expect(err).to.equal(undefined)
-                done()
-            })
+    it('should load plugin succesfully', function () {
+        server.register([testPluginConfig])
+        .catch(err => expect(err).to.equal(undefined))
+        .then(data => expect(data).to.equal(undefined))
     })
 
-    it('should register arbitrary routes', function (done) {
-        common.shouldRegisterRoutes(server, done)
+    it('should register arbitrary routes', function () {
+        common.shouldRegisterRoutes(server)
     })
 
-    it('should register arbitrary routes', function (done) {
-        common.shouldRegisterRoutes(server, done)
+    it('should register arbitrary routes', function () {
+        common.shouldRegisterRoutes(server)
     })
 
-    it('should respond ' + code + ' code and text/plain explicitly at non-verbose endpoint', function (done) {
-        common.shouldPlainExplicit(setName, server, code, state, done)
+    it('should respond ' + code + ' code and text/plain explicitly at non-verbose endpoint', function () {
+        common.shouldPlainExplicit(setName, server, code, state)
     })
 
-    it('should respond ' + code + ' code and text/plain by default at non-verbose endpoint', function (done) {
-        common.shouldPlainDefault(setName, server, code, state, done)
+    it('should respond ' + code + ' code and text/plain by default at non-verbose endpoint', function () {
+        common.shouldPlainDefault(setName, server, code, state)
     })
 
-    it('should respond ' + code + ' code with HEAD request', function (done) {
-        common.shouldHead(setName, server, code, state, done)
+    it('should respond ' + code + ' code with HEAD request', function () {
+        common.shouldHead(setName, server, code, state)
     })
 
-    it('should respond ' + code + ' code and expected output with verbose machine friendly', function (done) {
+    it('should respond ' + code + ' code and expected output with verbose machine friendly', function () {
         common.shouldVerbose(setName, server, {
             human: false,
             usage: testPluginConfig.options.usage
-        }, code, state, done)
+        }, code, state)
     })
 
-    it('should respond ' + code + ' code and expected output with verbose human friendly', function (done) {
+    it('should respond ' + code + ' code and expected output with verbose human friendly', function () {
         common.shouldVerbose(setName, server, {
             human: true,
             usage: testPluginConfig.options.usage
-        }, code, state, done)
+        }, code, state)
     })
 })
