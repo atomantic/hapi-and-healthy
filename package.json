@@ -46,7 +46,7 @@
   "dependencies": {
     "git-rev-sync": "1.9.1",
     "humanize-duration": "3.12.1",
-    "lodash": "4.17.4",
+    "lodash": "4.17.5",
     "pretty-bytes": "4.0.2"
   }
 }
