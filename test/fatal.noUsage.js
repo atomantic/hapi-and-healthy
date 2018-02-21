@@ -18,11 +18,15 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
 
     var testPluginConfig = _.cloneDeep(pluginConfig)
     testPluginConfig.options.test.node = [
-        function (cb) {
-            return cb(true, 'memcache is dead')
+        function () {
+            return new Promise(function (resolve, reject) {
+                reject(new Error('memcache is dead'))
+            })
         },
-        function (cb) {
-            return cb(null, 'checksum good')
+        function () {
+            return new Promise(function (resolve, reject) {
+                resolve('checksum good')
+            })
         }
     ]
     testPluginConfig.options.usage = false

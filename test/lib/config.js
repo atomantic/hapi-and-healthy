@@ -6,16 +6,30 @@ module.exports = {
         id: '1',
         name: pjson.name,
         test: {
-            node: [function (cb) {
-                return cb(null, 'memcache all good')
-            }, function (cb) {
-                return cb(null, 'checksum good')
-            }],
-            features: [function (cb) {
-                return cb(null, 'some feature is available')
-            }, function (cb) {
-                return cb(null, 'another feature is available')
-            }]
+            node: [
+                function () {
+                    return new Promise(function (resolve, reject) {
+                        resolve('memcache all good')
+                    })
+                },
+                function () {
+                    return new Promise(function (resolve, reject) {
+                        resolve('checksum good')
+                    })
+                },
+            ],
+            features: [
+                function () {
+                    return new Promise(function (resolve, reject) {
+                        resolve('some feature is available')
+                    })
+                },
+                function () {
+                    return new Promise(function (resolve, reject) {
+                        resolve('another feature is available')
+                    })
+                }
+            ]
         },
         state: {
             good: 'HEALTHY',

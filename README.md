@@ -118,7 +118,7 @@ server.register([{
       // which tells the API to reply with the failure.
       node:[
         // TEST 1: validate the version of this codebase matches release for this ENV
-        new Promise((resolve, reject) => {
+        () => new Promise((resolve, reject) => {
           // check the release version against current codebase.
           // At deploy time, we update memcache with the release version for this env
           // using a deploy script (stored under 'app_version_'+env)
@@ -136,7 +136,7 @@ server.register([{
         })
       ],
       features:[
-        new Promise((resolve, reject) => {
+        () => new Promise((resolve, reject) => {
           // let's say we have a content directory that we use a tool like chef to
           // dump onto the running node from a github repo
           // this is a seperate dependency from the node

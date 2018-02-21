@@ -19,11 +19,15 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
 
     var testPluginConfig = _.cloneDeep(pluginConfig)
     testPluginConfig.options.test.features = [
-        function (cb) {
-            return cb(true, 'feature 1 is unavailable')
+        function () {
+            return new Promise(function (resolve, reject) {
+                reject(new Error('feature 1 is unavailable'))
+            })
         },
-        function (cb) {
-            return cb(null, 'feature 2 is available')
+        function () {
+            return new Promise(function (resolve, reject) {
+                resolve('feature 2 is available')
+            })
         }
     ]
     var code = 200
