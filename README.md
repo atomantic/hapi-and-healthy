@@ -21,7 +21,7 @@ A secondary consumer is a DevOps maintainer who wants to see the status of the s
 
 Examples:
 
-- what version/checksum/`git rev-parse HEAD` is actually running (does it match the deployment manifest)?
+- what version/checksum/hash/`git rev-parse HEAD` is actually running (does it match the deployment manifest)?
 - what environment is the node configured to run (DEV, QA, STAGE, PROD, etc)?
 - what remote service environments is it setup to use (DEV, QA, STAGE, PROD, etc)?
 - what  what memcached servers are loaded in the pool?
@@ -60,7 +60,7 @@ You can run them with `npm test`
 - `custom` - (`object`) Additional custom data to return (e.g. custom:{memcached:memcached.servers})
 - `defaultContentType` - (`string`) Default content type for requests (defaults to `text/plain`)
 - `env` - (`string`) The running environment of your app (e.g. `DEV`, `QA`, `STAGE`, `PROD`). This will be returned in verbose output for consumers wishing to know what environment your service thinks it's running in.
-- `id` - (`string`) An ID of the state of this system (by default, we will run `git rev-parse head` to fill this value)
+- `id` - (`string`) An ID of the state of this system, like a checksum (default: '[no id provided]')
 - `lang` - (`string`) Default 'en' a language override for the human output health data. This endpoint uses the [Humanize Duration package](https://www.npmjs.org/package/humanize-duration) so any valid language override for that library will be valid here (`fr`, `de`, `ko`, etc)
 - `name` - (`string`) The name of your service (reported in verbose mode), probably supplied by your package.json
 - `path` - (`string`) An override path for the default `'/service-status'` endpoint
