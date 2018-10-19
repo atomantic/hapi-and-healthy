@@ -1,12 +1,12 @@
 {
   "name": "hapi-and-healthy",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Health Status API for Hapi",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/gulp/bin/gulp.js",
     "test": "./node_modules/gulp/bin/gulp.js test",
-    "nodeversions": "node ./node_modules/autochecker/cli.js 8"
+    "nodeversions": "node ./node_modules/autochecker/cli.js 8 10"
   },
   "repository": {
     "type": "git",
@@ -32,20 +32,20 @@
   "homepage": "https://github.com/atomantic/hapi-and-healthy",
   "devDependencies": {
     "autochecker": "0.9.2",
-    "code": "5.1.2",
+    "code": "5.2.0",
     "gulp": "4.0.0",
-    "gulp-eslint": "4.0.1",
-    "gulp-lab": "1.0.7",
+    "gulp-eslint": "5.0.0",
+    "gulp-lab": "1.0.8",
     "gulp-supervisor": "0.1.2",
     "gulp-webserver": "0.9.1",
-    "hapi": "17.2.0",
-    "joi": "13.1.1",
-    "lab": "15.2.0",
-    "opn": "5.2.0"
+    "hapi": "17.6.0",
+    "joi": "14.0.0",
+    "lab": "16.1.0",
+    "opn": "5.4.0"
   },
   "dependencies": {
-    "humanize-duration": "3.12.1",
-    "lodash": "4.17.5",
-    "pretty-bytes": "4.0.2"
+    "humanize-duration": "3.15.3",
+    "lodash": "4.17.11",
+    "pretty-bytes": "5.1.0"
   }
 }
