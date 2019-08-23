@@ -6,7 +6,9 @@
   "scripts": {
     "start": "./node_modules/gulp/bin/gulp.js",
     "test": "./node_modules/gulp/bin/gulp.js test",
-    "nodeversions": "node ./node_modules/autochecker/cli.js 8 10"
+    "nodeversions": "node ./node_modules/autochecker/cli.js 8 10",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -46,6 +48,8 @@
   "dependencies": {
     "humanize-duration": "3.17.0",
     "lodash": "4.17.11",
-    "pretty-bytes": "5.1.0"
-  }
+    "pretty-bytes": "5.1.0",
+    "snyk": "^1.192.3"
+  },
+  "snyk": true
 }
