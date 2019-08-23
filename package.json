@@ -49,7 +49,7 @@
     "humanize-duration": "3.17.0",
     "lodash": "4.17.11",
     "pretty-bytes": "5.1.0",
-    "snyk": "^1.192.3"
+    "snyk": "^1.217.3"
   },
   "snyk": true
 }
