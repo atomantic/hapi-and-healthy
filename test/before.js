@@ -1,4 +1,4 @@
-var Lab = require('lab')
+var Lab = require('@hapi/lab')
 var lab = exports.lab = Lab.script()
 var before = lab.before
 var describe = lab.describe

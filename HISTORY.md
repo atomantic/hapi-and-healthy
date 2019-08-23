@@ -1,5 +1,10 @@
 # History
 
+## 7.0.5
+- `lodash` is now a devDependency (no longer used in module)
+- migrate `@hapi` packages to `@hapi/*`
+- update deps
+
 ## 6.0.0
 - upgrade to Hapi 17 (major breaking upgrade)
 

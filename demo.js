@@ -8,7 +8,7 @@
  */
 // Server Layer
 // http://hapijs.com/api
-const Hapi = require('hapi')
+const Hapi = require('@hapi/hapi')
 // include package so we can get the version number
 const pjson = require('./package.json')
 

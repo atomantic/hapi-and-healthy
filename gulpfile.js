@@ -6,7 +6,7 @@ const gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     supervisor = require('gulp-supervisor'),
     lab = require('gulp-lab'),
-    opn = require('opn')
+    opn = require('open')
 
 const server = {
         host: 'localhost',

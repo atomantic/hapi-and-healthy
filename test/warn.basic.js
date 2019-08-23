@@ -1,6 +1,6 @@
 var Code = require('code')
-var Lab = require('lab')
-var Hapi = require('hapi')
+var Lab = require('@hapi/lab')
+var Hapi = require('@hapi/hapi')
 var lab = exports.lab = Lab.script()
 var describe = lab.describe
 var before = lab.before

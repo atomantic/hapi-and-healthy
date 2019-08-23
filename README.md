@@ -50,8 +50,7 @@ npm test;
 
 ## Tests:
 
-This project now has 71 tests!
-You can run them with `npm test`
+You can run tests with `npm test`
 ![](https://raw.githubusercontent.com/atomantic/hapi-and-healthy/master/docs/tests.png)
 
 ## Configuration Options

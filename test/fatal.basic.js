@@ -1,6 +1,6 @@
 const Code = require('code')
-const Lab = require('lab')
-const Hapi = require('hapi')
+const Lab = require('@hapi/lab')
+const Hapi = require('@hapi/hapi')
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
 const before = lab.before
