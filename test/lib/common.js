@@ -16,7 +16,7 @@ var common = {
      */
     writeOutput: function (name, body, headers) {
         fs.writeFile(
-            'test/output/' + name + '.json',
+            __dirname+'/../output/' + name + '.json',
             JSON.stringify(body, null, 2),
             function (err) {
                 if (err) {
@@ -27,7 +27,7 @@ var common = {
         if (headers) {
             headers.date = '[DYNAMIC]'
             fs.writeFile(
-                'test/output/' + name + '.headers.json',
+                __dirname+'/../output/' + name + '.headers.json',
                 JSON.stringify(headers, null, 2),
                 function (err) {
                     if (err) {
@@ -42,68 +42,67 @@ var common = {
         expect(table).to.have.length(1)
         expect(table[0].path).to.equal('/service-status')
     },
-    shouldPlainExplicit: function (name, server, code, state) {
-        server.inject({
+    shouldPlainExplicit: async (name, server, code, state) => {
+        const res = await server.inject({
             method: 'GET',
             url: '/service-status',
             headers: {
                 accept: 'text/plain'
             }
-        }, function (res) {
-            common.writeOutput(name + '.shouldPlainExplicit.' + res.statusCode, res.result, res.headers)
-            expect(res.statusCode).to.equal(code)
-            expect(res.result).to.equal(state)
         })
+        common.writeOutput(name + '.shouldPlainExplicit.' + res.statusCode, res.result, res.headers)
+        expect(res.statusCode).to.equal(code)
+        expect(res.result).to.equal(state)
     },
-    shouldPlainDefault: function (name, server, code, state) {
-        server.inject({
+    shouldPlainDefault: async (name, server, code, state) => {
+        const res = await server.inject({
             method: 'GET',
             url: '/service-status'
-        }, function (res) {
-            common.writeOutput(name + '.shouldPlainDefault.' + res.statusCode, res.result, res.headers)
-            expect(res.statusCode).to.equal(code)
-            expect(res.result).to.equal(state)
         })
+        common.writeOutput(name + '.shouldPlainDefault.' + res.statusCode, res.result, res.headers)
+        expect(res.statusCode).to.equal(code)
+        expect(res.result).to.equal(state)
+        
     },
-    shouldHead: function (name, server, code, state) {
-        server.inject({
+    shouldHead: async (name, server, code, state) => {
+        const res = await server.inject({
             method: 'HEAD',
             url: '/service-status'
-        }, function (res) {
-            common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers)
-            expect(res.statusCode).to.equal(code)
-            expect(res.result).to.be.null()
         })
+        common.writeOutput(name + '.shouldHead.' + res.statusCode, res.result, res.headers)
+        expect(res.statusCode).to.equal(code)
+        expect(res.result).to.be.null()
+        
     },
-    shouldVerbose: function (name, server, conf, code, state) {
-        server.inject({
+    shouldVerbose: async (name, server, conf, code, state) => {
+        const res = await server.inject({
             method: 'GET',
             url: '/service-status?v' + (conf.human ? '&h' : '')
-        }, function (res) {
-            var filename = name + '.shouldVerbose'
-            if (conf.human) {
-                filename += '.human'
-            }
-            if (conf.usage) {
-                filename += '.usage'
-            }
-            //console.log(name, 'verbose', conf, filename)
-            common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers)
-            expect(res.statusCode).to.equal(code)
-            expect(res.result.service).to.be.instanceof(Object)
-            expect(res.result.service.env).to.equal('FOO')
-            expect(res.result.service.id).to.equal('1')
-            expect(res.result.service.name).to.equal(pjson.name)
-            expect(res.result.service.version).to.equal(pjson.version)
-            expect(res.result.service.status.state).to.equal(state)
-
-            Joi.validate(res.result,
-                schema.createExpectedSchema(conf),
-                function (err /*, value*/ ) {
-                    expect(err).to.not.exist()
-                }
-            )
         })
+        var filename = name + '.shouldVerbose'
+        if (conf.human) {
+            filename += '.human'
+        }
+        if (conf.usage) {
+            filename += '.usage'
+        }
+        //console.log(name, 'verbose', conf, filename)
+        common.writeOutput(filename + '.' + res.statusCode, res.result, res.headers)
+        expect(res.statusCode).to.equal(code)
+        expect(res.result.service).to.be.instanceof(Object)
+        expect(res.result.service.env).to.equal('FOO')
+        expect(res.result.service.id).to.equal('1')
+        expect(res.result.service.name).to.equal(pjson.name)
+        expect(res.result.service.version).to.equal(pjson.version)
+        expect(res.result.service.status).to.be.instanceof(Object)
+        expect(res.result.service.status.state).to.equal(state)
+
+        Joi.validate(res.result,
+            schema.createExpectedSchema(conf),
+            function (err /*, value*/ ) {
+                expect(err).to.not.exist()
+            }
+        )
     }
 }
 module.exports = common
