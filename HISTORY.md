@@ -1,5 +1,8 @@
 # History
 
+## 7.0.6
+- fix accidental breaking change (deep Object assign to get service.status)
+
 ## 7.0.5
 - `lodash` is now a devDependency (no longer used in module)
 - migrate `@hapi` packages to `@hapi/*`
