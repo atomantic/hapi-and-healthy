@@ -43,13 +43,13 @@
     "gulp-lab": "2.0.0",
     "gulp-supervisor": "0.1.2",
     "gulp-webserver": "0.9.1",
-    "open": "6.4.0",
-    "snyk": "^1.217.3"
+    "open": "6.4.0"
   },
   "dependencies": {
     "humanize-duration": "3.20.1",
     "lodash": "4.17.15",
-    "pretty-bytes": "5.3.0"
+    "pretty-bytes": "5.3.0",
+    "snyk": "^1.316.2"
   },
   "snyk": true
 }
