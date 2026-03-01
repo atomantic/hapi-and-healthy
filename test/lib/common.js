@@ -1,5 +1,5 @@
 var fs = require('fs')
-var Code = require('code')
+var Code = require('@hapi/code')
 var expect = Code.expect
 var Joi = require('@hapi/joi')
 var pjson = require('../../package.json')

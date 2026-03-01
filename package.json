@@ -5,10 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/gulp/bin/gulp.js",
-    "test": "./node_modules/gulp/bin/gulp.js test",
-    "nodeversions": "node ./node_modules/autochecker/cli.js 8 10",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "test": "./node_modules/gulp/bin/gulp.js test"
   },
   "repository": {
     "type": "git",
@@ -36,20 +33,20 @@
     "@hapi/hapi": "20.0.0",
     "@hapi/joi": "15.1.1",
     "@hapi/lab": "20.1.0",
-    "autochecker": "0.9.2",
-    "code": "5.2.4",
+    "@hapi/code": "8.0.7",
     "gulp": "4.0.2",
     "gulp-eslint": "6.0.0",
-    "gulp-lab": "2.0.0",
-    "gulp-supervisor": "0.1.2",
-    "gulp-webserver": "0.9.1",
-    "open": "6.4.0",
-    "snyk": "^1.217.3"
+    "gulp-lab": "2.0.0"
   },
   "dependencies": {
     "humanize-duration": "3.20.1",
     "lodash": "4.17.23",
     "pretty-bytes": "5.3.0"
   },
-  "snyk": true
+  "overrides": {
+    "braces": ">=3.0.3",
+    "micromatch": ">=4.0.8",
+    "minimist": ">=0.2.4",
+    "tmp": ">=0.2.4"
+  }
 }

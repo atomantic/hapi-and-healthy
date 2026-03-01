@@ -1,4 +1,4 @@
-var Code = require('code')
+var Code = require('@hapi/code')
 var Lab = require('@hapi/lab')
 var Hapi = require('@hapi/hapi')
 var lab = exports.lab = Lab.script()
