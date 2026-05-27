@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/atomantic/hapi-and-healthy",
   "devDependencies": {
-    "@hapi/hapi": "20.0.0",
+    "@hapi/hapi": "21.4.9",
     "@hapi/joi": "15.1.1",
     "@hapi/lab": "20.1.0",
     "@hapi/code": "8.0.7",
