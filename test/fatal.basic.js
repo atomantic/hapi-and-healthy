@@ -8,7 +8,7 @@ const after = lab.after
 const it = lab.it
 const expect = Code.expect
 
-const _ = require('lodash')
+const _ = require('../lib/util')
 const common = require('./lib/common')
 const pluginConfig = require('./lib/config')
 
