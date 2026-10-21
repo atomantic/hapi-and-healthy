@@ -20,7 +20,11 @@ gulp.task('test', gulp.series(function () {
         // -l disable global leak detection
         // -C code coverage
         // -m 0 Timeout zero
-        .pipe(lab('-v -l -C -m 0'))
+        // emitLabError fails the task (and npm test) when any test fails
+        .pipe(lab({
+            args: '-v -l -C -m 0',
+            opts: { emitLabError: true }
+        }))
 }))
 
 gulp.task('default', gulp.series('js'))
