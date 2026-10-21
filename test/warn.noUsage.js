@@ -46,44 +46,43 @@ describe('Hapi-and-Healthy plugin: ' + setName, function () {
     })
 
     after(function () {
-        server.stop()
+        return server.stop()
     })
 
-    it('should load plugin succesfully', function () {
-        server.register([testPluginConfig])
-        .catch(err => expect(err).to.equal(undefined))
-        .then(data => expect(data).to.equal(undefined))
-    })
-
-    it('should register arbitrary routes', function () {
-        common.shouldRegisterRoutes(server)
+    it('should load plugin succesfully', async function () {
+        const registered = await server.register([testPluginConfig])
+        expect(registered).to.shallow.equal(server)
     })
 
     it('should register arbitrary routes', function () {
-        common.shouldRegisterRoutes(server)
+        return common.shouldRegisterRoutes(server)
+    })
+
+    it('should register arbitrary routes', function () {
+        return common.shouldRegisterRoutes(server)
     })
 
     it('should respond ' + code + ' code and text/plain explicitly at non-verbose endpoint', function () {
-        common.shouldPlainExplicit(setName, server, code, state)
+        return common.shouldPlainExplicit(setName, server, code, state)
     })
 
     it('should respond ' + code + ' code and text/plain by default at non-verbose endpoint', function () {
-        common.shouldPlainDefault(setName, server, code, state)
+        return common.shouldPlainDefault(setName, server, code, state)
     })
 
     it('should respond ' + code + ' code with HEAD request', function () {
-        common.shouldHead(setName, server, code, state)
+        return common.shouldHead(setName, server, code, state)
     })
 
     it('should respond ' + code + ' code and expected output with verbose machine friendly', function () {
-        common.shouldVerbose(setName, server, {
+        return common.shouldVerbose(setName, server, {
             human: false,
             usage: testPluginConfig.options.usage
         }, code, state)
     })
 
     it('should respond ' + code + ' code and expected output with verbose human friendly', function () {
-        common.shouldVerbose(setName, server, {
+        return common.shouldVerbose(setName, server, {
             human: true,
             usage: testPluginConfig.options.usage
         }, code, state)
